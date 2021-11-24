@@ -31,9 +31,10 @@ const (
 )
 
 type Object struct {
-	y, x  int
-	image *ebiten.Image
-	t     ObjectType
+	y, x    int
+	image   *ebiten.Image
+	t       ObjectType
+	trapped bool
 }
 
 func (f *Field) fromMap(m resources.Map) {
@@ -51,7 +52,7 @@ func (f *Field) fromMap(m resources.Map) {
 			switch r {
 			case 'B':
 				f.tiles[y][x] = Tile{
-					image:    resources.BoxImage,
+					image:    resources.BoulderImage,
 					pushable: true,
 					blocking: true,
 				}
@@ -68,6 +69,12 @@ func (f *Field) fromMap(m resources.Map) {
 					x:     x,
 					t:     snakeType,
 				})
+			case 'p':
+				f.tiles[y][x] = Tile{
+					image:    resources.FoodImage,
+					pushable: false,
+					blocking: false,
+				}
 			case '1', '2', '3', '4':
 				// TODO: Limit based on current player count.
 				f.gophers = append(f.gophers, Object{
@@ -176,4 +183,34 @@ func (f *Field) push(x, y int, xDir, yDir int) bool {
 		}
 	}
 	return false
+}
+
+func (f *Field) isTrapped(o *Object) bool {
+	if f.inBounds(o.x-1, o.y) && !f.isBlocked(o.x-1, o.y) {
+		return false
+	}
+	if f.inBounds(o.x+1, o.y) && !f.isBlocked(o.x+1, o.y) {
+		return false
+	}
+	if f.inBounds(o.x, o.y-1) && !f.isBlocked(o.x, o.y-1) {
+		return false
+	}
+	if f.inBounds(o.x, o.y+1) && !f.isBlocked(o.x, o.y+1) {
+		return false
+	}
+	// diagonals
+	if f.inBounds(o.x-1, o.y-1) && !f.isBlocked(o.x-1, o.y-1) {
+		return false
+	}
+	if f.inBounds(o.x+1, o.y-1) && !f.isBlocked(o.x+1, o.y-1) {
+		return false
+	}
+	if f.inBounds(o.x-1, o.y+1) && !f.isBlocked(o.x-1, o.y+1) {
+		return false
+	}
+	if f.inBounds(o.x+1, o.y+1) && !f.isBlocked(o.x+1, o.y+1) {
+		return false
+	}
+
+	return true
 }

@@ -86,6 +86,24 @@ func (s *GameState) simulate() {
 			s.field.moveObject(&s.field.gophers[0], s.direction)
 		}
 	}
+	for i, _ := range s.field.predators {
+		p := &s.field.predators[i]
+		if s.field.isTrapped(p) {
+			if !p.trapped {
+				p.trapped = true
+				if p.t == snakeType {
+					p.image = resources.SnakeSnoozeImage
+				}
+			}
+		} else {
+			if p.trapped {
+				p.trapped = false
+				if p.t == snakeType {
+					p.image = resources.SnakeImage
+				}
+			}
+		}
+	}
 }
 
 func (s *GameState) draw(screen *ebiten.Image) {

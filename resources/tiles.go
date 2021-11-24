@@ -14,11 +14,13 @@ import (
 var f embed.FS
 
 var (
-	BoxImage    *ebiten.Image
-	SolidImage  *ebiten.Image
-	GopherImage *ebiten.Image
-	SnakeImage  *ebiten.Image
-	/*foodImage   *ebiten.Image*/
+	BoxImage         *ebiten.Image
+	BoulderImage     *ebiten.Image
+	SolidImage       *ebiten.Image
+	GopherImage      *ebiten.Image
+	SnakeImage       *ebiten.Image
+	SnakeSnoozeImage *ebiten.Image
+	FoodImage        *ebiten.Image
 )
 
 func loadImages() error {
@@ -39,6 +41,10 @@ func loadImages() error {
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	SolidImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
+	data, _ = f.ReadFile("boulder.png")
+	img, _, _ = image.Decode(bytes.NewReader(data))
+	BoulderImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
+
 	data, _ = f.ReadFile("gopher.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	GopherImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
@@ -46,6 +52,14 @@ func loadImages() error {
 	data, _ = f.ReadFile("snake.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	SnakeImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
+
+	data, _ = f.ReadFile("snake-snooze.png")
+	img, _, _ = image.Decode(bytes.NewReader(data))
+	SnakeSnoozeImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
+
+	data, _ = f.ReadFile("plant.png")
+	img, _, _ = image.Decode(bytes.NewReader(data))
+	FoodImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
 	return nil
 }
