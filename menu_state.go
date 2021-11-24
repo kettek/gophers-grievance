@@ -15,7 +15,7 @@ type MenuState struct {
 func (s *MenuState) update(screen *ebiten.Image) error {
 	// Just bump to game for now.
 	f := Field{
-		background: color.RGBA{128, 128, 128, 255},
+		background: color.RGBA{196, 128, 64, 255},
 	}
 	f.fromMap(resources.GetAnyMap())
 	s.game.setState(&GameState{
