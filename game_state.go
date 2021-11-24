@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"image/color"
 	"time"
 
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/text"
 	"github.com/kettek/gophers-grievance/resources"
 )
 
@@ -123,6 +126,12 @@ func (s *GameState) draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	var offsetX float64 = 1
 	var offsetY float64 = 1 + 332 - 276 // for now
+
+	// Draw our scoreboard.
+	for i, g := range s.field.gophers {
+		score := fmt.Sprintf("Gopher %d - %d", i, g.score)
+		text.Draw(screen, score, resources.BoldFont, 20, 10, color.White)
+	}
 
 	// Draw our borders.
 	for y := 0; y < s.field.rows; y++ {
