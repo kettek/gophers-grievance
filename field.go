@@ -2,6 +2,7 @@ package main
 
 import (
 	"image/color"
+	"math"
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/kettek/gophers-grievance/resources"
@@ -223,4 +224,42 @@ func (f *Field) isTrapped(o *Object) bool {
 	}
 
 	return true
+}
+
+func (f *Field) nearestGopher(x, y int) (o *Object) {
+	for i, g := range f.gophers {
+		if o == nil {
+			o = &f.gophers[i]
+		} else {
+			if math.Sqrt(math.Pow(math.Abs(float64(g.x-x)), 2)+math.Pow(math.Abs(float64(g.y-y)), 2)) < math.Sqrt(math.Pow(math.Abs(float64(o.x-x)), 2)+math.Pow(math.Abs(float64(o.y-y)), 2)) {
+				o = &f.gophers[i]
+			}
+		}
+	}
+	return o
+}
+
+func (f *Field) moveTowards(o *Object, t *Object) {
+	dirX := 0
+	dirY := 0
+	if t.x < o.x {
+		dirX = -1
+	} else if t.x > o.x {
+		dirX = 1
+	}
+	if t.y < o.y {
+		dirY = -1
+	} else if t.y > o.y {
+		dirY = 1
+	}
+	tx := o.x + dirX
+	ty := o.y + dirY
+	if !f.inBounds(tx, ty) {
+		return
+	}
+	if f.isBlocked(tx, ty) || !f.isEmpty(tx, ty) {
+		return
+	}
+	o.x = tx
+	o.y = ty
 }

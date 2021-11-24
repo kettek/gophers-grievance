@@ -24,6 +24,7 @@ func (s *MenuState) update(screen *ebiten.Image) error {
 		field:        f,
 		turnTime:     50 * time.Millisecond,
 		lastTurnTime: time.Now(),
+		difficulty:   5,
 	})
 	return nil
 }

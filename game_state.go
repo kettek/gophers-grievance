@@ -24,6 +24,8 @@ type GameState struct {
 	turnTime     time.Duration
 	lastTurnTime time.Time
 	dirs         map[Direction]struct{}
+	turn         int
+	difficulty   int
 }
 
 func (s *GameState) update(screen *ebiten.Image) error {
@@ -72,6 +74,7 @@ func (s *GameState) update(screen *ebiten.Image) error {
 	t := time.Now()
 	if t.Sub(s.lastTurnTime) >= s.turnTime {
 		s.simulate()
+		s.turn++
 
 		s.lastTurnTime = t
 		s.direction = none
@@ -100,6 +103,15 @@ func (s *GameState) simulate() {
 				p.trapped = false
 				if p.t == snakeType {
 					p.image = resources.SnakeImage
+				}
+			} else {
+				if s.turn%(s.difficulty*5) == 1 {
+					g := s.field.nearestGopher(p.x, p.y)
+					if g != nil {
+						s.field.moveTowards(p, g)
+					}
+					// Only move if the predator move timer is ready.
+					// Get nearest gopher and its direction and begin moving towards it with a slight random x/y variance.
 				}
 			}
 		}
