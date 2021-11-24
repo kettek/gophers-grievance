@@ -142,6 +142,16 @@ func (f *Field) inBounds(x, y int) bool {
 }
 
 func (f *Field) isEmpty(x, y int) bool {
+	for _, p := range f.predators {
+		if p.x == x && p.y == y {
+			return false
+		}
+	}
+	for _, g := range f.gophers {
+		if g.x == x && g.y == y {
+			return false
+		}
+	}
 	return !f.tiles[y][x].blocking && !f.tiles[y][x].pushable
 }
 
