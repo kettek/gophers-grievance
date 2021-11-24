@@ -142,7 +142,7 @@ func (s *GameState) draw(screen *ebiten.Image) {
 	// Draw our scoreboard.
 	for i, g := range s.field.gophers {
 		score := fmt.Sprintf("Gopher %d - %d", i, g.score)
-		text.Draw(screen, score, resources.BoldFont, 0, 10, color.White)
+		text.Draw(screen, score, resources.BoldFont, 0, 10+i*10, color.White)
 	}
 
 	// Draw our borders.
