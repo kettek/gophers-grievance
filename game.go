@@ -6,7 +6,6 @@ import (
 
 type Game struct {
 	state State
-	keys  []ebiten.Key
 }
 
 func (g *Game) Update(screen *ebiten.Image) error {
