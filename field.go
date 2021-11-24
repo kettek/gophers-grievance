@@ -138,8 +138,10 @@ func (f *Field) moveObject(o *Object, dir Direction) {
 	if predator != nil {
 	}*/
 
-	o.x = tx
-	o.y = ty
+	if f.isEmpty(tx, ty) {
+		o.x = tx
+		o.y = ty
+	}
 }
 
 func (f *Field) inBounds(x, y int) bool {
