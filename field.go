@@ -21,6 +21,7 @@ type Tile struct {
 	image    *ebiten.Image
 	blocking bool
 	pushable bool
+	food     int
 }
 
 type ObjectType int
@@ -36,6 +37,7 @@ type Object struct {
 	image   *ebiten.Image
 	t       ObjectType
 	trapped bool
+	score   int // TODO: separate Object out into an interface.
 }
 
 func (f *Field) fromMap(m resources.Map) {
@@ -75,6 +77,7 @@ func (f *Field) fromMap(m resources.Map) {
 					image:    resources.FoodImage,
 					pushable: false,
 					blocking: false,
+					food:     100,
 				}
 			case '1', '2', '3', '4':
 				// TODO: Limit based on current player count.
@@ -115,6 +118,13 @@ func (f *Field) moveObject(o *Object, dir Direction) {
 			}
 		}
 		return
+	}
+
+	if o.t == gopherType {
+		if f.tiles[ty][tx].food > 0 {
+			o.score += f.tiles[ty][tx].food
+			f.tiles[ty][tx] = Tile{}
+		}
 	}
 
 	// Check if a predator is there.
