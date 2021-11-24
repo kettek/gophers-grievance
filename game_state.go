@@ -92,6 +92,7 @@ func (s *GameState) simulate() {
 			s.field.moveObject(&s.field.gophers[0], s.direction)
 		}
 	}
+	trapCount := 0
 	for i, _ := range s.field.predators {
 		p := &s.field.predators[i]
 		if s.field.isTrapped(p) {
@@ -101,6 +102,7 @@ func (s *GameState) simulate() {
 					p.image = resources.SnakeSnoozeImage
 				}
 			}
+			trapCount++
 		} else {
 			if p.trapped {
 				p.trapped = false
@@ -118,6 +120,16 @@ func (s *GameState) simulate() {
 				}
 			}
 		}
+	}
+	// If all current predators are trapped, vegetize 'em.
+	if trapCount == len(s.field.predators) {
+		for _, p := range s.field.predators {
+			s.field.tiles[p.y][p.x] = Tile{
+				image: resources.FoodImage,
+				food:  100,
+			}
+		}
+		s.field.predators = make([]Object, 0)
 	}
 }
 
