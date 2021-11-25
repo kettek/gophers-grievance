@@ -178,6 +178,7 @@ func (s *GameState) simulate() {
 
 func (s *GameState) draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
+	screen.Fill(color.RGBA{128, 128, 128, 255})
 	// Draw our clock.
 	op.GeoM.Translate(-float64(resources.TimeImage.Bounds().Max.X)/2, -float64(resources.TimeImage.Bounds().Max.Y)/2)
 	op.GeoM.Rotate(float64(s.turn) / 1000.0 * 6.28)
