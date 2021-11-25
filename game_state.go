@@ -66,7 +66,7 @@ func (s *GameState) reset() {
 	}
 	s.lastTurnTime = time.Now()
 	s.currentTurnTime = s.lastTurnTime
-	s.loadMap(s.currentMap)
+	s.loadMap(resources.GetAnyMap())
 }
 
 func (s *GameState) update(screen *ebiten.Image) error {
