@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image/color"
 	"time"
 
 	"github.com/hajimehoshi/ebiten"
@@ -14,22 +13,20 @@ type MenuState struct {
 
 func (s *MenuState) update(screen *ebiten.Image) error {
 	// Just bump to game for now.
-	f := Field{
-		background: color.RGBA{196, 128, 64, 255},
-	}
 	p := Player{
 		dirs:  make(map[Direction]struct{}),
 		lives: maxLives,
 	}
-	f.fromMap(resources.GetAnyMap())
-	s.game.setState(&GameState{
-		game:         s.game,
-		field:        f,
-		turnTime:     50 * time.Millisecond,
-		lastTurnTime: time.Now(),
-		difficulty:   5,
-		players:      []Player{p},
-	})
+	// TODO: Move to a game state based map load sort of deal.
+	gameState := &GameState{
+		game:       s.game,
+		turnTime:   50 * time.Millisecond,
+		difficulty: 5,
+		players:    []Player{p},
+	}
+	gameState.reset()
+	gameState.loadMap(resources.GetAnyMap())
+	s.game.setState(gameState)
 	return nil
 }
 

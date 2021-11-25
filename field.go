@@ -9,6 +9,7 @@ import (
 )
 
 type Field struct {
+	name          string
 	columns, rows int
 	background    color.RGBA
 
@@ -41,7 +42,26 @@ type Object struct {
 	dead     bool
 }
 
-func (f *Field) fromMap(m resources.Map) {
+func (f *Field) fromMap(m resources.Map, clearRip bool) {
+	// Reset
+	f.predators = make([]Object, 0)
+	f.gophers = make([]Object, 0)
+
+	// Store our dead gophers. FIXME: we're being lazy and temporarily storing them as objects.
+	deadGophers := make([]Object, 0)
+	if !clearRip {
+		for y, row := range f.tiles {
+			for x, tile := range row {
+				if tile.image == resources.GopherRipImage {
+					deadGophers = append(deadGophers, Object{
+						y: y,
+						x: x,
+					})
+				}
+			}
+		}
+	}
+
 	// Size our map
 	f.tiles = make([][]Tile, m.Rows)
 	for i := 0; i < m.Rows; i++ {
@@ -49,6 +69,15 @@ func (f *Field) fromMap(m resources.Map) {
 	}
 	f.columns = m.Columns
 	f.rows = m.Rows
+	f.name = m.Name
+
+	if !clearRip {
+		for _, o := range deadGophers {
+			if f.tiles[o.y][o.x].image == nil {
+				f.tiles[o.y][o.x].image = resources.GopherRipImage
+			}
+		}
+	}
 
 	// Convert our map resource to a live map.
 	for y, row := range m.Cells {
@@ -125,11 +154,12 @@ func (f *Field) moveObject(o *Object, dir Direction) moveResult {
 
 	if o.t == gopherType {
 		if f.tiles[ty][tx].food > 0 {
-			f.tiles[ty][tx] = Tile{}
 			o.x = tx
 			o.y = ty
+			food := f.tiles[ty][tx].food
+			f.tiles[ty][tx] = Tile{}
 			return moveEatResult{
-				score: f.tiles[ty][tx].food,
+				score: food,
 			}
 		}
 	}
@@ -317,7 +347,6 @@ func (f *Field) moveTowards(o *Object, t *Object, turn int) moveResult {
 			return moveTouchResult{
 				gopher: f.getGopherAt(tx, ty),
 			}
-
 		}
 		tx = o.x
 		if !f.inBounds(tx, ty) || f.isBlocked(tx, ty) || !f.isEmpty(tx, ty) {
@@ -325,9 +354,7 @@ func (f *Field) moveTowards(o *Object, t *Object, turn int) moveResult {
 				return moveTouchResult{
 					gopher: f.getGopherAt(tx, ty),
 				}
-
 			}
-
 			tx = o.x + dirX
 			ty = o.y
 			if !f.inBounds(tx, ty) || f.isBlocked(tx, ty) || !f.isEmpty(tx, ty) {
@@ -343,4 +370,11 @@ func (f *Field) moveTowards(o *Object, t *Object, turn int) moveResult {
 	o.x = tx
 	o.y = ty
 	return moveSuccessResult{}
+}
+
+func (f *Field) setTile(x, y int, t Tile) {
+	if !f.inBounds(x, y) {
+		return
+	}
+	f.tiles[y][x] = t
 }

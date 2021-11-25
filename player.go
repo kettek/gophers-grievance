@@ -60,7 +60,5 @@ func (p *Player) update(last time.Time, current time.Time, delta time.Duration) 
 }
 
 func (p *Player) reduceLives() {
-	if p.lives > 0 {
-		p.lives--
-	}
+	p.lives--
 }

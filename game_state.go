@@ -28,6 +28,34 @@ type GameState struct {
 	lastTurnTime time.Time
 	turn         int
 	difficulty   int
+	currentMap   resources.Map
+}
+
+func (s *GameState) nextMap() {
+
+}
+
+func (s *GameState) loadMap(m resources.Map) {
+	s.field.background = color.RGBA{196, 128, 64, 255}
+	s.currentMap = m
+	s.field.fromMap(s.currentMap, true)
+	ebiten.SetWindowTitle(fmt.Sprintf("%s: %s", winTitle, m.Name))
+}
+
+func (s *GameState) resetMap() {
+	s.field.fromMap(s.currentMap, false)
+}
+
+// reset resets the game state to a fresh one.
+func (s *GameState) reset() {
+	for i := range s.players {
+		s.players[i] = Player{
+			lives: maxLives,
+			dirs:  make(map[Direction]struct{}),
+		}
+	}
+	s.lastTurnTime = time.Now()
+	s.loadMap(s.currentMap)
 }
 
 func (s *GameState) update(screen *ebiten.Image) error {
@@ -53,7 +81,8 @@ func (s *GameState) update(screen *ebiten.Image) error {
 }
 
 func (s *GameState) simulate() {
-	for i, p := range s.players {
+	for i := range s.players {
+		p := &s.players[i]
 		if p.direction != none {
 			if i < len(s.field.gophers) {
 				if s.field.gophers[i].dead {
@@ -93,10 +122,11 @@ func (s *GameState) simulate() {
 						case moveTouchResult:
 							s.players[v.gopher].reduceLives()
 							s.field.gophers[v.gopher].dead = true
+							s.field.setTile(g.x, g.y, Tile{
+								image: resources.GopherRipImage,
+							})
 						}
 					}
-					// Only move if the predator move timer is ready.
-					// Get nearest gopher and its direction and begin moving towards it with a slight random x/y variance.
 				}
 			}
 		}
@@ -116,9 +146,22 @@ func (s *GameState) simulate() {
 			}
 		}
 		s.field.predators = make([]Object, 0)
-		// TODO: Next level
+		// TODO: Wait for a game end timer to allow gophers to pick up vegetized predators before traveling to next map (or, if the timer ticks, spawn more predators)
+		s.loadMap(resources.GetNextMap(s.currentMap))
 	} else if deathCount == len(s.field.gophers) { // Prioritize predator death over gopher death.
-		// TODO: Reset level
+		playersOut := 0
+		for _, p := range s.players {
+			if p.lives < 0 {
+				playersOut++
+			}
+		}
+		if playersOut == len(s.players) {
+			// TODO: Game over
+			s.reset()
+		} else {
+			// TODO: Pause until a player signals ready
+			s.resetMap()
+		}
 	}
 }
 
@@ -182,9 +225,7 @@ func (s *GameState) draw(screen *ebiten.Image) {
 	for _, gopher := range s.field.gophers {
 		op.GeoM.Reset()
 		op.GeoM.Translate(offsetX+float64(gopher.x)*tileWidth, offsetY+float64(gopher.y)*tileHeight)
-		if gopher.dead {
-			screen.DrawImage(gopher.ripImage, op)
-		} else {
+		if !gopher.dead {
 			screen.DrawImage(gopher.image, op)
 		}
 	}
