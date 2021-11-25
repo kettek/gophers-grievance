@@ -264,29 +264,29 @@ func (f *Field) push(x, y int, xDir, yDir int) bool {
 }
 
 func (f *Field) isTrapped(o *Object) bool {
-	if f.inBounds(o.x-1, o.y) && !f.isBlocked(o.x-1, o.y) {
+	if f.inBounds(o.x-1, o.y) && !f.isBlocked(o.x-1, o.y) && f.isEmpty(o.x-1, o.y) {
 		return false
 	}
-	if f.inBounds(o.x+1, o.y) && !f.isBlocked(o.x+1, o.y) {
+	if f.inBounds(o.x+1, o.y) && !f.isBlocked(o.x+1, o.y) && f.isEmpty(o.x+1, o.y) {
 		return false
 	}
-	if f.inBounds(o.x, o.y-1) && !f.isBlocked(o.x, o.y-1) {
+	if f.inBounds(o.x, o.y-1) && !f.isBlocked(o.x, o.y-1) && f.isEmpty(o.x, o.y-1) {
 		return false
 	}
-	if f.inBounds(o.x, o.y+1) && !f.isBlocked(o.x, o.y+1) {
+	if f.inBounds(o.x, o.y+1) && !f.isBlocked(o.x, o.y+1) && f.isEmpty(o.x, o.y+1) {
 		return false
 	}
 	// diagonals
-	if f.inBounds(o.x-1, o.y-1) && !f.isBlocked(o.x-1, o.y-1) {
+	if f.inBounds(o.x-1, o.y-1) && !f.isBlocked(o.x-1, o.y-1) && f.isEmpty(o.x-1, o.y-1) {
 		return false
 	}
-	if f.inBounds(o.x+1, o.y-1) && !f.isBlocked(o.x+1, o.y-1) {
+	if f.inBounds(o.x+1, o.y-1) && !f.isBlocked(o.x+1, o.y-1) && f.isEmpty(o.x+1, o.y-1) {
 		return false
 	}
-	if f.inBounds(o.x-1, o.y+1) && !f.isBlocked(o.x-1, o.y+1) {
+	if f.inBounds(o.x-1, o.y+1) && !f.isBlocked(o.x-1, o.y+1) && f.isEmpty(o.x-1, o.y+1) {
 		return false
 	}
-	if f.inBounds(o.x+1, o.y+1) && !f.isBlocked(o.x+1, o.y+1) {
+	if f.inBounds(o.x+1, o.y+1) && !f.isBlocked(o.x+1, o.y+1) && f.isEmpty(o.x+1, o.y+1) {
 		return false
 	}
 
