@@ -31,19 +31,27 @@ type GameState struct {
 	currentMap   resources.Map
 }
 
-func (s *GameState) nextMap() {
-
-}
-
 func (s *GameState) loadMap(m resources.Map) {
 	s.field.background = color.RGBA{196, 128, 64, 255}
 	s.currentMap = m
 	s.field.fromMap(s.currentMap, true)
+	// Mark unused gophers
+	for i := range s.field.gophers {
+		if i >= len(s.players) {
+			s.field.gophers[i].dead = true
+		}
+	}
 	ebiten.SetWindowTitle(fmt.Sprintf("%s: %s", winTitle, m.Name))
 }
 
 func (s *GameState) resetMap() {
 	s.field.fromMap(s.currentMap, false)
+	// Mark unused gophers
+	for i := range s.field.gophers {
+		if i >= len(s.players) {
+			s.field.gophers[i].dead = true
+		}
+	}
 }
 
 // reset resets the game state to a fresh one.
