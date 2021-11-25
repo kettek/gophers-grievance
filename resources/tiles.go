@@ -18,6 +18,7 @@ var (
 	BoulderImage     *ebiten.Image
 	SolidImage       *ebiten.Image
 	GopherImage      *ebiten.Image
+	GopherRipImage   *ebiten.Image
 	SnakeImage       *ebiten.Image
 	SnakeSnoozeImage *ebiten.Image
 	FoodImage        *ebiten.Image
@@ -48,6 +49,10 @@ func loadImages() error {
 	data, _ = f.ReadFile("gopher.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	GopherImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
+
+	data, _ = f.ReadFile("gopher-rip.png")
+	img, _, _ = image.Decode(bytes.NewReader(data))
+	GopherRipImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
 	data, _ = f.ReadFile("snake.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
