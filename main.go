@@ -3,7 +3,7 @@ package main
 import "github.com/hajimehoshi/ebiten"
 
 func main() {
-	ebiten.SetWindowSize(winWidth*2, winHeight*2)
+	ebiten.SetWindowSize(winWidth*scale, winHeight*scale)
 	ebiten.SetWindowTitle(winTitle)
 
 	game := &Game{}
