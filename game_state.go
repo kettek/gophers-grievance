@@ -180,7 +180,7 @@ func (s *GameState) draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	// Draw our clock.
 	op.GeoM.Translate(-float64(resources.TimeImage.Bounds().Max.X)/2, -float64(resources.TimeImage.Bounds().Max.Y)/2)
-	op.GeoM.Rotate(float64(s.currentTurnTime.Second()) / 60.0 * 6.28)
+	op.GeoM.Rotate(float64(s.turn) / 1000.0 * 6.28)
 	op.GeoM.Translate(float64(resources.TimeImage.Bounds().Max.X)/2, float64(resources.TimeImage.Bounds().Max.Y)/2)
 	op.GeoM.Translate(float64(winWidth)/2-float64(resources.TimeImage.Bounds().Max.X)/2, float64(332-276-resources.TimeImage.Bounds().Max.Y))
 	screen.DrawImage(resources.TimeImage, op)
