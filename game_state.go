@@ -22,74 +22,49 @@ const (
 
 type GameState struct {
 	game         *Game
+	players      []Player
 	field        Field
-	direction    Direction
 	turnTime     time.Duration
 	lastTurnTime time.Time
-	dirs         map[Direction]struct{}
 	turn         int
 	difficulty   int
 }
 
 func (s *GameState) update(screen *ebiten.Image) error {
-	// TODO: Separate direction out into a player type.
-	if _, ok := s.dirs[west]; ok {
-		if !ebiten.IsKeyPressed(ebiten.KeyA) && !ebiten.IsKeyPressed(ebiten.KeyH) {
-			delete(s.dirs, west)
-		}
-	} else {
-		if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyH) {
-			s.direction = west
-			s.dirs[west] = struct{}{}
-		}
-	}
-	if _, ok := s.dirs[east]; ok {
-		if !ebiten.IsKeyPressed(ebiten.KeyD) && !ebiten.IsKeyPressed(ebiten.KeyL) {
-			delete(s.dirs, east)
-		}
-	} else {
-		if ebiten.IsKeyPressed(ebiten.KeyD) || ebiten.IsKeyPressed(ebiten.KeyL) {
-			s.direction = east
-			s.dirs[east] = struct{}{}
-		}
-	}
-	if _, ok := s.dirs[north]; ok {
-		if !ebiten.IsKeyPressed(ebiten.KeyW) && !ebiten.IsKeyPressed(ebiten.KeyK) {
-			delete(s.dirs, north)
-		}
-	} else {
-		if ebiten.IsKeyPressed(ebiten.KeyW) || ebiten.IsKeyPressed(ebiten.KeyK) {
-			s.direction = north
-			s.dirs[north] = struct{}{}
-		}
-	}
-	if _, ok := s.dirs[south]; ok {
-		if !ebiten.IsKeyPressed(ebiten.KeyS) && !ebiten.IsKeyPressed(ebiten.KeyJ) {
-			delete(s.dirs, south)
-		}
-	} else {
-		if ebiten.IsKeyPressed(ebiten.KeyS) || ebiten.IsKeyPressed(ebiten.KeyJ) {
-			s.direction = south
-			s.dirs[south] = struct{}{}
-		}
-	}
-
 	t := time.Now()
-	if t.Sub(s.lastTurnTime) >= s.turnTime {
+	d := t.Sub(s.lastTurnTime)
+	for i := range s.players {
+		p := &s.players[i]
+		p.update(s.lastTurnTime, t, d)
+	}
+	if d >= s.turnTime {
 		s.simulate()
 		s.turn++
 
 		s.lastTurnTime = t
-		s.direction = none
+
+		for i := range s.players {
+			p := &s.players[i]
+			p.direction = none
+		}
 	}
 
 	return nil
 }
 
 func (s *GameState) simulate() {
-	if s.direction != none {
-		if len(s.field.gophers) > 0 {
-			s.field.moveObject(&s.field.gophers[0], s.direction)
+	for i, p := range s.players {
+		if p.direction != none {
+			if i < len(s.field.gophers) {
+				if s.field.gophers[i].dead {
+					continue
+				}
+				r := s.field.moveObject(&s.field.gophers[i], p.direction)
+				switch v := r.(type) {
+				case moveEatResult:
+					p.score += v.score
+				}
+			}
 		}
 	}
 	trapCount := 0
@@ -113,12 +88,23 @@ func (s *GameState) simulate() {
 				if s.turn%(s.difficulty*5) == 1 {
 					g := s.field.nearestGopher(p.x, p.y)
 					if g != nil {
-						s.field.moveTowards(p, g, s.turn)
+						r := s.field.moveTowards(p, g, s.turn)
+						switch v := r.(type) {
+						case moveTouchResult:
+							s.players[v.gopher].reduceLives()
+							s.field.gophers[v.gopher].dead = true
+						}
 					}
 					// Only move if the predator move timer is ready.
 					// Get nearest gopher and its direction and begin moving towards it with a slight random x/y variance.
 				}
 			}
+		}
+	}
+	deathCount := 0
+	for _, g := range s.field.gophers {
+		if g.dead {
+			deathCount++
 		}
 	}
 	// If all current predators are trapped, vegetize 'em.
@@ -130,6 +116,9 @@ func (s *GameState) simulate() {
 			}
 		}
 		s.field.predators = make([]Object, 0)
+		// TODO: Next level
+	} else if deathCount == len(s.field.gophers) { // Prioritize predator death over gopher death.
+		// TODO: Reset level
 	}
 }
 
@@ -140,9 +129,21 @@ func (s *GameState) draw(screen *ebiten.Image) {
 	var offsetY float64 = 1 + 332 - 276 // for now
 
 	// Draw our scoreboard.
-	for i, g := range s.field.gophers {
-		score := fmt.Sprintf("Gopher %d - %d", i, g.score)
-		text.Draw(screen, score, resources.BoldFont, 0, 10+i*10, color.White)
+	for i, p := range s.players {
+		var offsetX float64 = 0
+		var offsetY float64 = 1 + float64(i)*10
+		for l := 0; l < maxLives; l++ {
+			op.GeoM.Reset()
+			op.GeoM.Translate(offsetX+float64(l)*tileWidth, offsetY+float64(i)*tileHeight)
+			if l >= p.lives {
+				screen.DrawImage(resources.GopherRipImage, op)
+			} else {
+				screen.DrawImage(resources.GopherImage, op)
+			}
+		}
+
+		score := fmt.Sprintf("Gopher %d - %d", i, p.score)
+		text.Draw(screen, score, resources.BoldFont, int(float64(maxLives)*tileWidth), 10+i*10, color.White)
 	}
 
 	// Draw our borders.
@@ -181,7 +182,11 @@ func (s *GameState) draw(screen *ebiten.Image) {
 	for _, gopher := range s.field.gophers {
 		op.GeoM.Reset()
 		op.GeoM.Translate(offsetX+float64(gopher.x)*tileWidth, offsetY+float64(gopher.y)*tileHeight)
-		screen.DrawImage(gopher.image, op)
+		if gopher.dead {
+			screen.DrawImage(gopher.ripImage, op)
+		} else {
+			screen.DrawImage(gopher.image, op)
+		}
 	}
 
 	// Draw our predators.

@@ -33,11 +33,12 @@ const (
 )
 
 type Object struct {
-	y, x    int
-	image   *ebiten.Image
-	t       ObjectType
-	trapped bool
-	score   int // TODO: separate Object out into an interface.
+	y, x     int
+	image    *ebiten.Image
+	ripImage *ebiten.Image
+	t        ObjectType
+	trapped  bool
+	dead     bool
 }
 
 func (f *Field) fromMap(m resources.Map) {
@@ -82,17 +83,18 @@ func (f *Field) fromMap(m resources.Map) {
 			case '1', '2', '3', '4':
 				// TODO: Limit based on current player count.
 				f.gophers = append(f.gophers, Object{
-					image: resources.GopherImage,
-					y:     y,
-					x:     x,
-					t:     gopherType,
+					image:    resources.GopherImage,
+					ripImage: resources.GopherRipImage,
+					y:        y,
+					x:        x,
+					t:        gopherType,
 				})
 			}
 		}
 	}
 }
 
-func (f *Field) moveObject(o *Object, dir Direction) {
+func (f *Field) moveObject(o *Object, dir Direction) moveResult {
 	x := 0
 	y := 0
 	switch dir {
@@ -108,40 +110,36 @@ func (f *Field) moveObject(o *Object, dir Direction) {
 	tx := o.x + x
 	ty := o.y + y
 	if !f.inBounds(tx, ty) {
-		return
+		return moveBlockedResult{}
 	}
 	if f.isBlocked(tx, ty) {
 		if f.isPushable(tx, ty) {
 			if f.push(tx, ty, x, y) {
 				o.x = tx
 				o.y = ty
+				return movePushResult{}
 			}
 		}
-		return
+		return moveBlockedResult{}
 	}
 
 	if o.t == gopherType {
 		if f.tiles[ty][tx].food > 0 {
-			o.score += f.tiles[ty][tx].food
 			f.tiles[ty][tx] = Tile{}
+			o.x = tx
+			o.y = ty
+			return moveEatResult{
+				score: f.tiles[ty][tx].food,
+			}
 		}
 	}
-
-	// Check if a predator is there.
-	/*var predator *Object = nil
-	for _, p := range f.predators {
-		if p.x == tx && p.y == ty {
-			predator = &p
-			break
-		}
-	}
-	if predator != nil {
-	}*/
 
 	if f.isEmpty(tx, ty) {
 		o.x = tx
 		o.y = ty
+		return moveSuccessResult{}
 	}
+	return moveBlockedResult{}
 }
 
 func (f *Field) inBounds(x, y int) bool {
@@ -161,6 +159,9 @@ func (f *Field) isEmpty(x, y int) bool {
 		}
 	}
 	for _, g := range f.gophers {
+		if g.dead {
+			continue
+		}
 		if g.x == x && g.y == y {
 			return false
 		}
@@ -174,6 +175,32 @@ func (f *Field) isBlocked(x, y int) bool {
 
 func (f *Field) isPushable(x, y int) bool {
 	return f.tiles[y][x].pushable
+}
+
+func (f *Field) isGopherAt(x, y int) bool {
+	for _, o := range f.gophers {
+		if o.dead {
+			continue
+		}
+		if o.x != x || o.y != y {
+			continue
+		}
+		return true
+	}
+	return false
+}
+
+func (f *Field) getGopherAt(x, y int) int {
+	for i, o := range f.gophers {
+		if o.dead {
+			continue
+		}
+		if o.x != x || o.y != y {
+			continue
+		}
+		return i
+	}
+	return -1
 }
 
 func (f *Field) push(x, y int, xDir, yDir int) bool {
@@ -240,6 +267,9 @@ func (f *Field) isTrapped(o *Object) bool {
 
 func (f *Field) nearestGopher(x, y int) (o *Object) {
 	for i, g := range f.gophers {
+		if g.dead {
+			continue
+		}
 		if o == nil {
 			o = &f.gophers[i]
 		} else {
@@ -251,7 +281,7 @@ func (f *Field) nearestGopher(x, y int) (o *Object) {
 	return o
 }
 
-func (f *Field) moveTowards(o *Object, t *Object, turn int) {
+func (f *Field) moveTowards(o *Object, t *Object, turn int) moveResult {
 	dirX := 0
 	dirY := 0
 	if t.x < o.x {
@@ -283,15 +313,34 @@ func (f *Field) moveTowards(o *Object, t *Object, turn int) {
 	tx := o.x + dirX
 	ty := o.y + dirY
 	if !f.inBounds(tx, ty) || f.isBlocked(tx, ty) || !f.isEmpty(tx, ty) {
+		if f.isGopherAt(tx, ty) {
+			return moveTouchResult{
+				gopher: f.getGopherAt(tx, ty),
+			}
+
+		}
 		tx = o.x
 		if !f.inBounds(tx, ty) || f.isBlocked(tx, ty) || !f.isEmpty(tx, ty) {
+			if f.isGopherAt(tx, ty) {
+				return moveTouchResult{
+					gopher: f.getGopherAt(tx, ty),
+				}
+
+			}
+
 			tx = o.x + dirX
 			ty = o.y
 			if !f.inBounds(tx, ty) || f.isBlocked(tx, ty) || !f.isEmpty(tx, ty) {
-				return
+				if f.isGopherAt(tx, ty) {
+					return moveTouchResult{
+						gopher: f.getGopherAt(tx, ty),
+					}
+				}
+				return moveBlockedResult{}
 			}
 		}
 	}
 	o.x = tx
 	o.y = ty
+	return moveSuccessResult{}
 }

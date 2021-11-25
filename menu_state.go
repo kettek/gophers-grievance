@@ -17,14 +17,18 @@ func (s *MenuState) update(screen *ebiten.Image) error {
 	f := Field{
 		background: color.RGBA{196, 128, 64, 255},
 	}
+	p := Player{
+		dirs:  make(map[Direction]struct{}),
+		lives: maxLives,
+	}
 	f.fromMap(resources.GetAnyMap())
 	s.game.setState(&GameState{
 		game:         s.game,
-		dirs:         make(map[Direction]struct{}),
 		field:        f,
 		turnTime:     50 * time.Millisecond,
 		lastTurnTime: time.Now(),
 		difficulty:   5,
+		players:      []Player{p},
 	})
 	return nil
 }

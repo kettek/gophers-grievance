@@ -10,3 +10,5 @@ const winWidth int = 276
 const winHeight int = 332
 const scale int = 2
 const winTitle string = "Gopher's Grievance"
+
+const maxLives int = 3
