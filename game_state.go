@@ -21,14 +21,15 @@ const (
 )
 
 type GameState struct {
-	game         *Game
-	players      []Player
-	field        Field
-	turnTime     time.Duration
-	lastTurnTime time.Time
-	turn         int
-	difficulty   int
-	currentMap   resources.Map
+	game            *Game
+	players         []Player
+	field           Field
+	turnTime        time.Duration
+	lastTurnTime    time.Time
+	turn            int
+	difficulty      int
+	currentMap      resources.Map
+	backgroundImage *ebiten.Image
 }
 
 func (s *GameState) loadMap(m resources.Map) {
@@ -40,6 +41,7 @@ func (s *GameState) loadMap(m resources.Map) {
 			s.field.gophers[i].dead = true
 		}
 	}
+	s.backgroundImage.Fill(s.currentMap.Background)
 	ebiten.SetWindowTitle(fmt.Sprintf("%s: %s", winTitle, m.Name))
 }
 
@@ -173,7 +175,6 @@ func (s *GameState) simulate() {
 }
 
 func (s *GameState) draw(screen *ebiten.Image) {
-	screen.Fill(s.currentMap.Background)
 	op := &ebiten.DrawImageOptions{}
 	var offsetX float64 = 1
 	var offsetY float64 = 1 + 332 - 276 // for now
@@ -196,25 +197,9 @@ func (s *GameState) draw(screen *ebiten.Image) {
 		text.Draw(screen, score, resources.BoldFont, int(float64(maxLives)*tileWidth), 10+i*10, color.White)
 	}
 
-	// Draw our borders.
-	for y := 0; y < s.field.rows; y++ {
-		op.GeoM.Reset()
-		op.GeoM.Translate(offsetX, offsetY+float64(y)*tileHeight)
-		screen.DrawImage(resources.SolidImage, op)
-
-		op.GeoM.Reset()
-		op.GeoM.Translate(offsetX+float64(s.field.columns-1)*tileWidth, offsetY+float64(y)*tileHeight)
-		screen.DrawImage(resources.SolidImage, op)
-	}
-	for x := 1; x < s.field.columns-1; x++ {
-		op.GeoM.Reset()
-		op.GeoM.Translate(offsetX+float64(x)*tileWidth, offsetY)
-		screen.DrawImage(resources.SolidImage, op)
-
-		op.GeoM.Reset()
-		op.GeoM.Translate(offsetX+float64(x)*tileWidth, offsetY+float64(s.field.rows-1)*tileHeight)
-		screen.DrawImage(resources.SolidImage, op)
-	}
+	op.GeoM.Reset()
+	op.GeoM.Translate(0, offsetY)
+	screen.DrawImage(s.backgroundImage, op)
 
 	// Draw our map.
 	for y, row := range s.field.tiles {
