@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"image/color"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -12,6 +14,7 @@ var maps = make([]Map, 0)
 
 type Map struct {
 	Name          string
+	Background    color.RGBA
 	Columns, Rows int
 	Cells         []string
 }
@@ -26,7 +29,8 @@ func loadMaps() error {
 			continue
 		}
 		m := Map{
-			Name: strings.TrimSuffix(file.Name(), filepath.Ext(file.Name())),
+			Name:       strings.TrimSuffix(file.Name(), filepath.Ext(file.Name())),
+			Background: color.RGBA{128, 128, 128, 255},
 		}
 		data, err := f.ReadFile("maps/" + file.Name())
 
@@ -40,6 +44,30 @@ func loadMaps() error {
 			t := scanner.Text()
 			if t[0] == '!' {
 				m.Name = strings.TrimSpace(t[1:])
+			} else if t[0] == '@' {
+				parts := strings.Split(strings.TrimSpace(t[1:]), ",")
+				for i, p := range parts {
+					p = strings.TrimSpace(p)
+					if i == 0 {
+						if c, err := strconv.ParseInt(p, 10, 32); err == nil {
+							m.Background.R = uint8(c)
+						} else {
+							fmt.Println(err)
+						}
+					} else if i == 1 {
+						if c, err := strconv.ParseInt(p, 10, 32); err == nil {
+							m.Background.G = uint8(c)
+						} else {
+							fmt.Println(err)
+						}
+					} else if i == 2 {
+						if c, err := strconv.ParseInt(p, 10, 32); err == nil {
+							m.Background.B = uint8(c)
+						} else {
+							fmt.Println(err)
+						}
+					}
+				}
 			} else {
 				if len(t) > m.Columns {
 					m.Columns = len(t)

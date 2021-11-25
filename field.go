@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image/color"
 	"math"
 
 	"github.com/hajimehoshi/ebiten"
@@ -11,7 +10,6 @@ import (
 type Field struct {
 	name          string
 	columns, rows int
-	background    color.RGBA
 
 	tiles     [][]Tile
 	predators []Object

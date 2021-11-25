@@ -1,19 +1,20 @@
 ! A Lone Hedge
+@ 96, 128, 32
 #######################
 # B     B             #
-#       f          p  #
-#   f                 #
+#                  p  #
+#                     #
 #              B      #
 #     B               #
-#  g          B       #
-#       f             #
+#             B       #
+#                     #
 #   B         B       #
-#       B             #
-#        s            #
+#       B  s          #
+#       BB   BB       #
 #       BBBBBBB  B    #
 #          1          #
 #  B    BBBBBBB       #
-#  B                  #
+#  B    BB   BB       #
 #            B   BB   #
 #  B                  #
 #                BB   #

@@ -32,7 +32,6 @@ type GameState struct {
 }
 
 func (s *GameState) loadMap(m resources.Map) {
-	s.field.background = color.RGBA{196, 128, 64, 255}
 	s.currentMap = m
 	s.field.fromMap(s.currentMap, true)
 	// Mark unused gophers
@@ -174,7 +173,7 @@ func (s *GameState) simulate() {
 }
 
 func (s *GameState) draw(screen *ebiten.Image) {
-	screen.Fill(s.field.background)
+	screen.Fill(s.currentMap.Background)
 	op := &ebiten.DrawImageOptions{}
 	var offsetX float64 = 1
 	var offsetY float64 = 1 + 332 - 276 // for now
