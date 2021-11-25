@@ -1,25 +1,25 @@
-! A Lone Hedge
+! Humble Beginnings
 @ 96, 128, 32
 #######################
-# B     B             #
-#                  p  #
 #                     #
-#              B      #
-#     B               #
-#             B       #
 #                     #
-#   B         B       #
-#       B  s          #
-#       BB   BB       #
-#       BBBBBBB  B    #
-#          1          #
-#  B    BBBBBBB       #
-#  B    BB   BB       #
-#            B   BB   #
-#  B                  #
-#                BB   #
-#             B     B #
-#   p                 #
-#              s      #
-#  B                  #
+#                     #
+#                     #
+#                     #
+#                     #
+#          #          #
+#     BB       BB     #
+#     B    s    B     #
+#       p  B  p       #
+#         BBB         #
+#    #   BB1BB   #    #
+#         BBB         #
+#       p  B  p       #
+#     B         B     #
+#     BB       BB     #
+#          #          #
+#                     #
+#                     #
+#                     #
+#                     #
 #######################

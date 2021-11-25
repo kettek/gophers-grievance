@@ -1,0 +1,25 @@
+! Quadrants
+@ 196, 128, 64
+#######################
+# 3       B B       4 #
+#         B B         #
+#         B B         #
+#  B  B   B B   B  B  #
+#  B##B   B B   B##B  #
+#  B  B   B B   B  B  #
+#         B B         #
+# f     s B B s     f #
+#         B B         #
+#BBBBBBBBBB#BBBBBBBBBB#
+#  s f s  ###  s f s  #
+#BBBBBBBBBB#BBBBBBBBBB#
+#         B B         #
+# f     s B B s     f #
+#         B B         #
+#  B  B   B B   B  B  #
+#  B##B   B B   B##B  #
+#  B  B   B B   B  B  #
+#         B B         #
+#         B B         #
+# 1       B B       2 #
+#######################
