@@ -26,6 +26,7 @@ type GameState struct {
 	field           Field
 	turnTime        time.Duration
 	lastTurnTime    time.Time
+	currentTurnTime time.Time
 	turn            int
 	difficulty      int
 	currentMap      resources.Map
@@ -64,21 +65,22 @@ func (s *GameState) reset() {
 		}
 	}
 	s.lastTurnTime = time.Now()
+	s.currentTurnTime = s.lastTurnTime
 	s.loadMap(s.currentMap)
 }
 
 func (s *GameState) update(screen *ebiten.Image) error {
-	t := time.Now()
-	d := t.Sub(s.lastTurnTime)
+	s.currentTurnTime = time.Now()
+	d := s.currentTurnTime.Sub(s.lastTurnTime)
 	for i := range s.players {
 		p := &s.players[i]
-		p.update(s.lastTurnTime, t, d)
+		p.update(s.lastTurnTime, s.currentTurnTime, d)
 	}
 	if d >= s.turnTime {
 		s.simulate()
 		s.turn++
 
-		s.lastTurnTime = t
+		s.lastTurnTime = s.currentTurnTime
 
 		for i := range s.players {
 			p := &s.players[i]
@@ -176,8 +178,12 @@ func (s *GameState) simulate() {
 
 func (s *GameState) draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
-	var offsetX float64 = 1
-	var offsetY float64 = 1 + 332 - 276 // for now
+	// Draw our clock.
+	op.GeoM.Translate(-float64(resources.TimeImage.Bounds().Max.X)/2, -float64(resources.TimeImage.Bounds().Max.Y)/2)
+	op.GeoM.Rotate(float64(s.currentTurnTime.Second()) / 60.0 * 6.28)
+	op.GeoM.Translate(float64(resources.TimeImage.Bounds().Max.X)/2, float64(resources.TimeImage.Bounds().Max.Y)/2)
+	op.GeoM.Translate(float64(winWidth)/2-float64(resources.TimeImage.Bounds().Max.X)/2, float64(332-276-resources.TimeImage.Bounds().Max.Y))
+	screen.DrawImage(resources.TimeImage, op)
 
 	// Draw our scoreboard.
 	for i, p := range s.players {
@@ -196,6 +202,9 @@ func (s *GameState) draw(screen *ebiten.Image) {
 		score := fmt.Sprintf("Gopher %d - %d", i, p.score)
 		text.Draw(screen, score, resources.BoldFont, int(float64(maxLives)*tileWidth), 10+i*10, color.White)
 	}
+
+	var offsetX float64 = 1
+	var offsetY float64 = 1 + 332 - 276 // for now
 
 	op.GeoM.Reset()
 	op.GeoM.Translate(0, offsetY)
