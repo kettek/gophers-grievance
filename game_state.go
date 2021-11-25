@@ -113,7 +113,7 @@ func (s *GameState) simulate() {
 				if s.turn%(s.difficulty*5) == 1 {
 					g := s.field.nearestGopher(p.x, p.y)
 					if g != nil {
-						s.field.moveTowards(p, g)
+						s.field.moveTowards(p, g, s.turn)
 					}
 					// Only move if the predator move timer is ready.
 					// Get nearest gopher and its direction and begin moving towards it with a slight random x/y variance.

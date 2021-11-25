@@ -251,7 +251,7 @@ func (f *Field) nearestGopher(x, y int) (o *Object) {
 	return o
 }
 
-func (f *Field) moveTowards(o *Object, t *Object) {
+func (f *Field) moveTowards(o *Object, t *Object, turn int) {
 	dirX := 0
 	dirY := 0
 	if t.x < o.x {
@@ -264,13 +264,33 @@ func (f *Field) moveTowards(o *Object, t *Object) {
 	} else if t.y > o.y {
 		dirY = 1
 	}
+
+	if dirX == 0 {
+		if turn%3 == 0 {
+			dirX = 1
+		} else if turn%3 == 2 {
+			dirX = -1
+		}
+	}
+	if dirY == 0 {
+		if turn%3 == 0 {
+			dirY = -1
+		} else if turn%3 == 2 {
+			dirY = 1
+		}
+	}
+
 	tx := o.x + dirX
 	ty := o.y + dirY
-	if !f.inBounds(tx, ty) {
-		return
-	}
-	if f.isBlocked(tx, ty) || !f.isEmpty(tx, ty) {
-		return
+	if !f.inBounds(tx, ty) || f.isBlocked(tx, ty) || !f.isEmpty(tx, ty) {
+		tx = o.x
+		if !f.inBounds(tx, ty) || f.isBlocked(tx, ty) || !f.isEmpty(tx, ty) {
+			tx = o.x + dirX
+			ty = o.y
+			if !f.inBounds(tx, ty) || f.isBlocked(tx, ty) || !f.isEmpty(tx, ty) {
+				return
+			}
+		}
 	}
 	o.x = tx
 	o.y = ty
