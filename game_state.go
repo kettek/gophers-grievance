@@ -31,10 +31,14 @@ type GameState struct {
 	difficulty      int
 	currentMap      resources.Map
 	backgroundImage *ebiten.Image
+	mapDone         bool
+	mapExitTime     time.Time
 }
 
 func (s *GameState) loadMap(m resources.Map) {
 	s.currentMap = m
+	s.mapDone = false
+	s.turn = 0
 	s.field.fromMap(s.currentMap, true)
 	// Mark unused gophers
 	for i := range s.field.gophers {
@@ -48,12 +52,14 @@ func (s *GameState) loadMap(m resources.Map) {
 
 func (s *GameState) resetMap() {
 	s.field.fromMap(s.currentMap, false)
+	s.mapDone = false
 	// Mark unused gophers
 	for i := range s.field.gophers {
 		if i >= len(s.players) {
 			s.field.gophers[i].dead = true
 		}
 	}
+	s.turn = 0
 }
 
 // reset resets the game state to a fresh one.
@@ -148,17 +154,27 @@ func (s *GameState) simulate() {
 			deathCount++
 		}
 	}
-	// If all current predators are trapped, vegetize 'em.
-	if trapCount == len(s.field.predators) {
+	if s.mapDone {
+		if s.currentTurnTime.After(s.mapExitTime) {
+			s.loadMap(resources.GetNextMap(s.currentMap))
+			s.mapDone = false
+		}
+	} else if trapCount == len(s.field.predators) { // If all current predators are trapped, vegetize 'em.
 		for _, p := range s.field.predators {
 			s.field.tiles[p.y][p.x] = Tile{
 				image: resources.FoodImage,
 				food:  100,
 			}
+			// Reward 500 to each alive gopher for each vegitization.
+			for i, g := range s.field.gophers {
+				if !g.dead {
+					s.players[i].score += 500
+				}
+			}
 		}
 		s.field.predators = make([]Object, 0)
-		// TODO: Wait for a game end timer to allow gophers to pick up vegetized predators before traveling to next map (or, if the timer ticks, spawn more predators)
-		s.loadMap(resources.GetNextMap(s.currentMap))
+		s.mapDone = true
+		s.mapExitTime = s.currentTurnTime.Add(5 * time.Second)
 	} else if deathCount == len(s.field.gophers) { // Prioritize predator death over gopher death.
 		playersOut := 0
 		for _, p := range s.players {
@@ -180,11 +196,22 @@ func (s *GameState) draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	screen.Fill(color.RGBA{128, 128, 128, 255})
 	// Draw our clock.
+	clockX := float64(winWidth)/2 - float64(resources.TimeImage.Bounds().Max.X)/2
+	clockY := float64(332 - 276 - resources.TimeImage.Bounds().Max.Y)
 	op.GeoM.Translate(-float64(resources.TimeImage.Bounds().Max.X)/2, -float64(resources.TimeImage.Bounds().Max.Y)/2)
 	op.GeoM.Rotate(float64(s.turn) / 2000.0 * 6.28)
 	op.GeoM.Translate(float64(resources.TimeImage.Bounds().Max.X)/2, float64(resources.TimeImage.Bounds().Max.Y)/2)
-	op.GeoM.Translate(float64(winWidth)/2-float64(resources.TimeImage.Bounds().Max.X)/2, float64(332-276-resources.TimeImage.Bounds().Max.Y))
+	op.GeoM.Translate(clockX, clockY)
 	screen.DrawImage(resources.TimeImage, op)
+
+	// Draw our next map timer
+	if s.mapDone {
+		op.GeoM.Reset()
+		op.GeoM.Translate(clockX, clockY)
+		timeLeft := fmt.Sprintf("%d", int(s.mapExitTime.Sub(s.currentTurnTime).Seconds()))
+		r := text.BoundString(resources.BoldFont, timeLeft)
+		text.Draw(screen, timeLeft, resources.BoldFont, int(clockX+float64(resources.TimeImage.Bounds().Max.X/2)-float64(r.Max.X/2)), int(clockY+float64(resources.TimeImage.Bounds().Max.Y/2)+float64(r.Max.Y/2)), color.RGBA{255, 0, 255, 255})
+	}
 
 	// Draw our scoreboard.
 	for i, p := range s.players {
