@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var maps = map[string]Map{}
+var maps = make([]Map, 0)
 
 type Map struct {
 	Name          string
@@ -37,14 +37,19 @@ func loadMaps() error {
 		// This is inefficent, but get our dimensions first.
 		scanner := bufio.NewScanner(bytes.NewReader(data))
 		for scanner.Scan() {
-			if len(scanner.Text()) > m.Columns {
-				m.Columns = len(scanner.Text())
+			t := scanner.Text()
+			if t[0] == '!' {
+				m.Name = strings.TrimSpace(t[1:])
+			} else {
+				if len(t) > m.Columns {
+					m.Columns = len(t)
+				}
+				m.Rows++
+				m.Cells = append(m.Cells, t)
 			}
-			m.Rows++
-			m.Cells = append(m.Cells, scanner.Text())
 		}
 		// Now read our runes.
-		maps[m.Name] = m
+		maps = append(maps, m)
 	}
 
 	return nil
@@ -54,6 +59,20 @@ func loadMaps() error {
 func GetAnyMap() Map {
 	for _, v := range maps {
 		return v
+	}
+	return Map{}
+}
+
+// GetNextMap bogusly gets the next map from the provided one.
+func GetNextMap(m Map) Map {
+	nextIsIt := false
+	for _, v := range maps {
+		if nextIsIt {
+			return v
+		}
+		if v.Name == m.Name {
+			nextIsIt = true
+		}
 	}
 	return Map{}
 }

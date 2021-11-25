@@ -1,12 +1,13 @@
+! A Lone Hedge
 #######################
 # B     B             #
 #       f          p  #
-#   f    s            #
+#   f                 #
 #              B      #
 #     B               #
 #  g          B       #
 #       f             #
-#   B         B  s    #
+#   B         B       #
 #       B             #
 #        s            #
 #       BBBBBBB  B    #
@@ -16,7 +17,7 @@
 #            B   BB   #
 #  B                  #
 #                BB   #
-#       s     B     B #
+#             B     B #
 #   p                 #
 #              s      #
 #  B                  #
