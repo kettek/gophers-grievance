@@ -33,12 +33,13 @@ const (
 )
 
 type Object struct {
-	y, x     int
-	image    *ebiten.Image
-	ripImage *ebiten.Image
-	t        ObjectType
-	trapped  bool
-	dead     bool
+	y, x            int
+	image           *ebiten.Image
+	ripImage        *ebiten.Image
+	t               ObjectType
+	trapped         bool
+	dead            bool
+	failedMovements int
 }
 
 func (f *Field) fromMap(m resources.Map, clearRip bool) {
@@ -393,21 +394,22 @@ func (f *Field) moveTowards(o *Object, t *Object, turn int) moveResult {
 		dirY = 1
 	}
 
-	// TODO: Only apply random x/y movement if movement towards the target has previously failed.
-	min := 1
-	max := 4
-	r := rand.Intn(max-min+1) + min
+	if o.failedMovements > 0 {
+		min := 0
+		max := 1
+		r := rand.Intn(max-min+1) + min
 
-	if r == 1 {
-		dirX = 1
-	} else if r == 2 {
-		dirX = -1
-	}
-	r = rand.Intn(max-min+1) + min
-	if r == 1 {
-		dirY = -1
-	} else if r == 2 {
-		dirY = 1
+		if r == 0 {
+			dirX = 1
+		} else if r == 1 {
+			dirX = -1
+		}
+		r = rand.Intn(max-min+1) + min
+		if r == 0 {
+			dirY = -1
+		} else if r == 1 {
+			dirY = 1
+		}
 	}
 
 	tx := o.x + dirX
@@ -439,12 +441,14 @@ func (f *Field) moveTowards(o *Object, t *Object, turn int) moveResult {
 						y:      ty,
 					}
 				}
+				o.failedMovements++
 				return moveBlockedResult{}
 			}
 		}
 	}
 	o.x = tx
 	o.y = ty
+	o.failedMovements = 0
 	return moveSuccessResult{
 		x: tx,
 		y: ty,
