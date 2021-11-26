@@ -234,8 +234,8 @@ func (s *GameState) draw(screen *ebiten.Image) {
 		text.Draw(screen, score, resources.BoldFont, int(float64(maxLives)*tileWidth), 10+i*10, color.White)
 	}
 
-	var offsetX float64 = 1
-	var offsetY float64 = 1 + 332 - 276 // for now
+	var offsetX float64 = 0
+	var offsetY float64 = 332 - 276 // for now
 
 	op.GeoM.Reset()
 	op.GeoM.Translate(0, offsetY)
