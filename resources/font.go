@@ -11,7 +11,7 @@ var (
 )
 
 func loadFonts() error {
-	data, err := f.ReadFile("OpenSansPX.ttf")
+	data, err := f.ReadFile("ui/OpenSansPX.ttf")
 	if err != nil {
 		return err
 	}
@@ -30,7 +30,7 @@ func loadFonts() error {
 		return err
 	}
 
-	data, err = f.ReadFile("OpenSansPXBold.ttf")
+	data, err = f.ReadFile("ui/OpenSansPXBold.ttf")
 	if err != nil {
 		return err
 	}
