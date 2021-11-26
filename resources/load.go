@@ -6,6 +6,10 @@ func Load() error {
 		return err
 	}
 
+	if err := loadUi(); err != nil {
+		return err
+	}
+
 	if err := loadImages(); err != nil {
 		return err
 	}
