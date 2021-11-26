@@ -9,9 +9,9 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
-//go:embed *
 //go:embed maps/*
 //go:embed ui/*
+//go:embed tiles/*
 var f embed.FS
 
 var (
@@ -28,7 +28,7 @@ var (
 )
 
 func loadImages() error {
-	data, err := f.ReadFile("box.png")
+	data, err := f.ReadFile("tiles/box.png")
 	if err != nil {
 		return err
 	}
@@ -41,39 +41,39 @@ func loadImages() error {
 		return err
 	}
 
-	data, _ = f.ReadFile("solid.png")
+	data, _ = f.ReadFile("tiles/solid.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	SolidImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
-	data, _ = f.ReadFile("boulder.png")
+	data, _ = f.ReadFile("tiles/boulder.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	BoulderImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
-	data, _ = f.ReadFile("gopher.png")
+	data, _ = f.ReadFile("tiles/gopher.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	GopherImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
-	data, _ = f.ReadFile("gopher-rip.png")
+	data, _ = f.ReadFile("tiles/gopher-rip.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	GopherRipImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
-	data, _ = f.ReadFile("snake.png")
+	data, _ = f.ReadFile("tiles/snake.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	SnakeImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
-	data, _ = f.ReadFile("snake-snooze.png")
+	data, _ = f.ReadFile("tiles/snake-snooze.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	SnakeSnoozeImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
-	data, _ = f.ReadFile("plant.png")
+	data, _ = f.ReadFile("tiles/plant.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	FoodImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
-	data, _ = f.ReadFile("time.png")
+	data, _ = f.ReadFile("tiles/time.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	TimeImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
-	data, _ = f.ReadFile("time-border.png")
+	data, _ = f.ReadFile("tiles/time-border.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	TimeBorderImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
