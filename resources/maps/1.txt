@@ -1,4 +1,4 @@
-! Humble Beginnings
+! A Slight Challenge
 @ 96, 128, 32
 #######################
 #                     #
@@ -7,17 +7,17 @@
 #                     #
 #                     #
 #                     #
-#          #          #
-#     BB       BB     #
-#     B    s    B     #
-#       p  B  p       #
-#         BBB         #
-#    #   BB1BB   #    #
-#         BBB         #
-#       p  B  p       #
-#     B         B     #
-#     BB       BB     #
-#          #          #
+#     B    #    B     #
+#    BBBB     BBBB    #
+#     BB   s   BB     #
+#     B p  B  p B     #
+#        BBBBB        #
+#    #  BBB1BBB  #    #
+#        BBBBB        #
+#     B p  B  p B     #
+#     BB   s   BB     #
+#    BBBB     BBBB    #
+#     B    #    B     #
 #                     #
 #                     #
 #                     #
