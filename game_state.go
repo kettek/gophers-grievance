@@ -194,7 +194,7 @@ func (s *GameState) simulate() {
 
 func (s *GameState) draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
-	screen.Fill(color.RGBA{128, 128, 128, 255})
+	screen.Fill(color.RGBA{0, 125, 156, 255})
 	// Draw our clock.
 	clockX := float64(winWidth)/2 - float64(resources.TimeImage.Bounds().Max.X)/2
 	clockY := float64(332 - 276 - resources.TimeImage.Bounds().Max.Y)
