@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"math/rand"
 	"time"
 
 	"github.com/hajimehoshi/ebiten"
@@ -48,6 +49,8 @@ type GameState struct {
 }
 
 func (s *GameState) init() error {
+	// TODO: Allow passing a seed.
+	rand.Seed(time.Now().UnixNano())
 	// Set our default settings.
 	s.turnTime = 50 * time.Millisecond
 	s.difficulty = 5

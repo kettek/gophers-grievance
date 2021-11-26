@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"math/rand"
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/kettek/gophers-grievance/resources"
@@ -119,6 +120,58 @@ func (f *Field) fromMap(m resources.Map, clearRip bool) {
 			}
 		}
 	}
+	// If we have no predators, randomly add one or more to an open space.
+	if len(f.predators) == 0 {
+		min := 1
+		max := 2
+		r := rand.Intn(max-min+1) + min
+		for i := 0; i < r; i++ {
+			f.spawnRandomPredator(snakeType)
+		}
+	}
+}
+
+func (f *Field) spawnRandomPredator(ot ObjectType) {
+	freeTiles := f.findOpenTiles()
+	if len(freeTiles) == 0 {
+		return
+	}
+	t := rand.Intn(len(freeTiles) - 0 + 1)
+	f.predators = append(f.predators, Object{
+		image: resources.SnakeImage,
+		y:     freeTiles[t].y,
+		x:     freeTiles[t].x,
+		t:     ot,
+	})
+}
+
+type Coord struct {
+	x, y int
+}
+
+func (f *Field) findOpenTiles() (c []Coord) {
+	for y := 0; y < f.rows; y++ {
+		for x := 0; x < f.columns; x++ {
+			found := false
+			for _, g := range f.gophers {
+				if g.x == x && g.y == y {
+					found = true
+					break
+				}
+			}
+			for _, p := range f.predators {
+				if p.x == x && p.y == y {
+					found = true
+					break
+				}
+			}
+
+			if f.tiles[y][x].image == nil && !found {
+				c = append(c, Coord{x, y})
+			}
+		}
+	}
+	return c
 }
 
 func (f *Field) moveObject(o *Object, dir Direction) moveResult {
