@@ -25,37 +25,50 @@ func (b *Button) draw(screen *ebiten.Image, x, y int) (int, int) {
 
 	fx := x
 
+	var leftImage *ebiten.Image
+	var middleImage *ebiten.Image
+	var rightImage *ebiten.Image
+	if !b.held {
+		leftImage = resources.ButtonLeftImage
+		middleImage = resources.ButtonMiddleImage
+		rightImage = resources.ButtonRightImage
+	} else {
+		leftImage = resources.ButtonLeftPressImage
+		middleImage = resources.ButtonMiddlePressImage
+		rightImage = resources.ButtonRightPressImage
+	}
+
 	// Draw button.
 	op.GeoM.Translate(float64(fx), float64(y))
-	screen.DrawImage(resources.ButtonLeftImage, op)
+	screen.DrawImage(leftImage, op)
 
-	fx += resources.ButtonLeftImage.Bounds().Max.X
+	fx += leftImage.Bounds().Max.X
 
 	canFinish := func() bool {
-		return int(fx-x)+resources.ButtonRightImage.Bounds().Dx() > r.Dx()+4
+		return int(fx-x)+rightImage.Bounds().Dx() > r.Dx()+4
 	}
 
 	if canFinish() {
 		op.GeoM.Reset()
 		op.GeoM.Translate(float64(fx), float64(y))
-		screen.DrawImage(resources.ButtonRightImage, op)
-		fx += resources.ButtonMiddleImage.Bounds().Max.X
+		screen.DrawImage(rightImage, op)
+		fx += middleImage.Bounds().Max.X
 	} else {
 		for (fx - x) < r.Dx()+4 {
 			op.GeoM.Reset()
 			op.GeoM.Translate(float64(fx), float64(y))
 			if canFinish() {
-				screen.DrawImage(resources.ButtonRightImage, op)
-				fx += resources.ButtonRightImage.Bounds().Max.X
+				screen.DrawImage(rightImage, op)
+				fx += rightImage.Bounds().Max.X
 			} else {
-				screen.DrawImage(resources.ButtonMiddleImage, op)
-				fx += resources.ButtonMiddleImage.Bounds().Max.X
+				screen.DrawImage(middleImage, op)
+				fx += middleImage.Bounds().Max.X
 			}
 		}
 	}
 
 	w := fx - x
-	h := resources.ButtonMiddleImage.Bounds().Dy()
+	h := middleImage.Bounds().Dy()
 
 	textX := x
 	textX += w / 2

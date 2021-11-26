@@ -25,9 +25,12 @@ var (
 	TimeImage        *ebiten.Image
 	TimeBorderImage  *ebiten.Image
 	//
-	ButtonLeftImage   *ebiten.Image
-	ButtonRightImage  *ebiten.Image
-	ButtonMiddleImage *ebiten.Image
+	ButtonLeftImage        *ebiten.Image
+	ButtonRightImage       *ebiten.Image
+	ButtonMiddleImage      *ebiten.Image
+	ButtonLeftPressImage   *ebiten.Image
+	ButtonRightPressImage  *ebiten.Image
+	ButtonMiddlePressImage *ebiten.Image
 )
 
 func loadImages() error {
@@ -92,6 +95,18 @@ func loadImages() error {
 	data, _ = f.ReadFile("button-middle.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	ButtonMiddleImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
+
+	data, _ = f.ReadFile("button-left-press.png")
+	img, _, _ = image.Decode(bytes.NewReader(data))
+	ButtonLeftPressImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
+
+	data, _ = f.ReadFile("button-right-press.png")
+	img, _, _ = image.Decode(bytes.NewReader(data))
+	ButtonRightPressImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
+
+	data, _ = f.ReadFile("button-middle-press.png")
+	img, _, _ = image.Decode(bytes.NewReader(data))
+	ButtonMiddlePressImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
 	return nil
 }
