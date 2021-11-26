@@ -136,7 +136,7 @@ func (f *Field) spawnRandomPredator(ot ObjectType) {
 	if len(freeTiles) == 0 {
 		return
 	}
-	t := rand.Intn(len(freeTiles) - 0 + 1)
+	t := rand.Intn(len(freeTiles) - 1 + 1)
 	f.predators = append(f.predators, Object{
 		image: resources.SnakeImage,
 		y:     freeTiles[t].y,
@@ -393,19 +393,21 @@ func (f *Field) moveTowards(o *Object, t *Object, turn int) moveResult {
 		dirY = 1
 	}
 
-	if dirX == 0 {
-		if turn%3 == 0 {
-			dirX = 1
-		} else if turn%3 == 2 {
-			dirX = -1
-		}
+	// TODO: Only apply random x/y movement if movement towards the target has previously failed.
+	min := 1
+	max := 4
+	r := rand.Intn(max-min+1) + min
+
+	if r == 1 {
+		dirX = 1
+	} else if r == 2 {
+		dirX = -1
 	}
-	if dirY == 0 {
-		if turn%3 == 0 {
-			dirY = -1
-		} else if turn%3 == 2 {
-			dirY = 1
-		}
+	r = rand.Intn(max-min+1) + min
+	if r == 1 {
+		dirY = -1
+	} else if r == 2 {
+		dirY = 1
 	}
 
 	tx := o.x + dirX
