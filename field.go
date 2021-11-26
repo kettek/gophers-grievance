@@ -137,17 +137,26 @@ func (f *Field) moveObject(o *Object, dir Direction) moveResult {
 	tx := o.x + x
 	ty := o.y + y
 	if !f.inBounds(tx, ty) {
-		return moveBlockedResult{}
+		return moveBlockedResult{
+			x: tx,
+			y: ty,
+		}
 	}
 	if f.isBlocked(tx, ty) {
 		if f.isPushable(tx, ty) {
 			if f.push(tx, ty, x, y) {
 				o.x = tx
 				o.y = ty
-				return movePushResult{}
+				return movePushResult{
+					x: tx,
+					y: ty,
+				}
 			}
 		}
-		return moveBlockedResult{}
+		return moveBlockedResult{
+			x: tx,
+			y: ty,
+		}
 	}
 
 	if o.t == gopherType {
@@ -158,6 +167,8 @@ func (f *Field) moveObject(o *Object, dir Direction) moveResult {
 			f.tiles[ty][tx] = Tile{}
 			return moveEatResult{
 				score: food,
+				x:     tx,
+				y:     ty,
 			}
 		}
 	}
@@ -165,9 +176,15 @@ func (f *Field) moveObject(o *Object, dir Direction) moveResult {
 	if f.isEmpty(tx, ty) {
 		o.x = tx
 		o.y = ty
-		return moveSuccessResult{}
+		return moveSuccessResult{
+			x: tx,
+			y: ty,
+		}
 	}
-	return moveBlockedResult{}
+	return moveBlockedResult{
+		x: tx,
+		y: ty,
+	}
 }
 
 func (f *Field) inBounds(x, y int) bool {
@@ -344,6 +361,8 @@ func (f *Field) moveTowards(o *Object, t *Object, turn int) moveResult {
 		if f.isGopherAt(tx, ty) {
 			return moveTouchResult{
 				gopher: f.getGopherAt(tx, ty),
+				x:      tx,
+				y:      ty,
 			}
 		}
 		tx = o.x
@@ -351,6 +370,8 @@ func (f *Field) moveTowards(o *Object, t *Object, turn int) moveResult {
 			if f.isGopherAt(tx, ty) {
 				return moveTouchResult{
 					gopher: f.getGopherAt(tx, ty),
+					x:      tx,
+					y:      ty,
 				}
 			}
 			tx = o.x + dirX
@@ -359,6 +380,8 @@ func (f *Field) moveTowards(o *Object, t *Object, turn int) moveResult {
 				if f.isGopherAt(tx, ty) {
 					return moveTouchResult{
 						gopher: f.getGopherAt(tx, ty),
+						x:      tx,
+						y:      ty,
 					}
 				}
 				return moveBlockedResult{}
@@ -367,7 +390,10 @@ func (f *Field) moveTowards(o *Object, t *Object, turn int) moveResult {
 	}
 	o.x = tx
 	o.y = ty
-	return moveSuccessResult{}
+	return moveSuccessResult{
+		x: tx,
+		y: ty,
+	}
 }
 
 func (f *Field) setTile(x, y int, t Tile) {

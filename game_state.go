@@ -20,6 +20,13 @@ const (
 	west
 )
 
+type FloatingText struct {
+	remainingTime time.Duration
+	text          string
+	x, y          int
+	color         color.RGBA
+}
+
 type GameState struct {
 	game            *Game
 	players         []Player
@@ -37,6 +44,7 @@ type GameState struct {
 	buttons         []Button
 	mouseState      map[int]bool
 	ui              *UiManager
+	floatingText    []FloatingText
 }
 
 func (s *GameState) init() error {
@@ -136,6 +144,15 @@ func (s *GameState) update(screen *ebiten.Image) error {
 	// Otherwise, let's simulate.
 	s.currentTurnTime = time.Now()
 	d := s.currentTurnTime.Sub(s.lastTurnTime)
+
+	// Update floating text.
+	for i := len(s.floatingText) - 1; i >= 0; i-- {
+		s.floatingText[i].remainingTime -= d
+		if s.floatingText[i].remainingTime < 0 {
+			s.floatingText = append(s.floatingText[:i], s.floatingText[i+1:]...)
+		}
+	}
+
 	for i := range s.players {
 		p := &s.players[i]
 		p.update(s.lastTurnTime, s.currentTurnTime, d)
@@ -167,6 +184,13 @@ func (s *GameState) simulate() {
 				switch v := r.(type) {
 				case moveEatResult:
 					p.score += v.score
+					s.floatingText = append(s.floatingText, FloatingText{
+						text:          fmt.Sprintf("%d", v.score),
+						x:             v.x * int(tileWidth),
+						y:             v.y * int(tileHeight),
+						color:         color.RGBA{gopherColor.R, gopherColor.G, gopherColor.B, 128},
+						remainingTime: floatingTextDuration,
+					})
 				}
 			}
 		}
@@ -227,6 +251,13 @@ func (s *GameState) simulate() {
 			for i, g := range s.field.gophers {
 				if !g.dead {
 					s.players[i].score += 500
+					s.floatingText = append(s.floatingText, FloatingText{
+						text:          fmt.Sprintf("%d", 500),
+						x:             p.x * int(tileWidth),
+						y:             p.y * int(tileHeight),
+						color:         color.RGBA{gopherColor.R, gopherColor.G, gopherColor.B, 128},
+						remainingTime: floatingTextDuration,
+					})
 				}
 			}
 		}
@@ -336,5 +367,15 @@ func (s *GameState) draw(screen *ebiten.Image) {
 		op.GeoM.Reset()
 		op.GeoM.Translate(offsetX+float64(predator.x)*tileWidth, offsetY+float64(predator.y)*tileHeight)
 		screen.DrawImage(predator.image, op)
+	}
+
+	// Draw our silly score text.
+	for _, t := range s.floatingText {
+		r := text.BoundString(resources.NormalFont, t.text)
+		centerX := r.Dx() / 2
+		c := t.color
+		p := float64(t.remainingTime) / float64(floatingTextDuration)
+		c.A = uint8(p * float64(floatingTextAlpha))
+		text.Draw(screen, t.text, resources.NormalFont, int(offsetX)+t.x-centerX, int(offsetY)-4+t.y-int(1-p*6), c)
 	}
 }
