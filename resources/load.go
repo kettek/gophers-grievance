@@ -10,7 +10,7 @@ func Load() error {
 		return err
 	}
 
-	if err := loadImages(); err != nil {
+	if err := loadDefaultImages(); err != nil {
 		return err
 	}
 

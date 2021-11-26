@@ -52,7 +52,7 @@ func (f *Field) fromMap(m resources.Map, clearRip bool) {
 	if !clearRip {
 		for y, row := range f.tiles {
 			for x, tile := range row {
-				if tile.image == resources.GopherRipImage {
+				if tile.image == resources.Images["gopher-rip"] {
 					deadGophers = append(deadGophers, Object{
 						y: y,
 						x: x,
@@ -74,7 +74,7 @@ func (f *Field) fromMap(m resources.Map, clearRip bool) {
 	if !clearRip {
 		for _, o := range deadGophers {
 			if f.tiles[o.y][o.x].image == nil {
-				f.tiles[o.y][o.x].image = resources.GopherRipImage
+				f.tiles[o.y][o.x].image = resources.Images["gopher-rip"]
 			}
 		}
 	}
@@ -85,26 +85,26 @@ func (f *Field) fromMap(m resources.Map, clearRip bool) {
 			switch r {
 			case 'B':
 				f.tiles[y][x] = Tile{
-					image:    resources.BoulderImage,
+					image:    resources.Images["boulder"],
 					pushable: true,
 					blocking: true,
 				}
 			case '#':
 				f.tiles[y][x] = Tile{
-					image:    resources.SolidImage,
+					image:    resources.Images["solid"],
 					pushable: false,
 					blocking: true,
 				}
 			case 's':
 				f.predators = append(f.predators, Object{
-					image: resources.SnakeImage,
+					image: resources.Images["snake"],
 					y:     y,
 					x:     x,
 					t:     snakeType,
 				})
 			case 'p':
 				f.tiles[y][x] = Tile{
-					image:    resources.FoodImage,
+					image:    resources.Images["plant"],
 					pushable: false,
 					blocking: false,
 					food:     100,
@@ -112,8 +112,8 @@ func (f *Field) fromMap(m resources.Map, clearRip bool) {
 			case '1', '2', '3', '4':
 				// TODO: Limit based on current player count.
 				f.gophers = append(f.gophers, Object{
-					image:    resources.GopherImage,
-					ripImage: resources.GopherRipImage,
+					image:    resources.Images["gopher"],
+					ripImage: resources.Images["gopher-rip"],
 					y:        y,
 					x:        x,
 					t:        gopherType,
@@ -139,7 +139,7 @@ func (f *Field) spawnRandomPredator(ot ObjectType) {
 	}
 	t := rand.Intn(len(freeTiles) - 1 + 1)
 	f.predators = append(f.predators, Object{
-		image: resources.SnakeImage,
+		image: resources.Images["snake"],
 		y:     freeTiles[t].y,
 		x:     freeTiles[t].x,
 		t:     ot,

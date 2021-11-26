@@ -205,7 +205,7 @@ func (s *GameState) simulate() {
 			if !p.trapped {
 				p.trapped = true
 				if p.t == snakeType {
-					p.image = resources.SnakeSnoozeImage
+					p.image = resources.Images["snake"]
 				}
 			}
 			trapCount++
@@ -213,7 +213,7 @@ func (s *GameState) simulate() {
 			if p.trapped {
 				p.trapped = false
 				if p.t == snakeType {
-					p.image = resources.SnakeImage
+					p.image = resources.Images["snake"]
 				}
 			} else {
 				if s.turn%(s.difficulty*5) == 1 {
@@ -225,7 +225,7 @@ func (s *GameState) simulate() {
 							s.players[v.gopher].reduceLives()
 							s.field.gophers[v.gopher].dead = true
 							s.field.setTile(g.x, g.y, Tile{
-								image: resources.GopherRipImage,
+								image: resources.Images["gopher-rip"],
 							})
 						}
 					}
@@ -247,7 +247,7 @@ func (s *GameState) simulate() {
 	} else if trapCount == len(s.field.predators) { // If all current predators are trapped, vegetize 'em.
 		for _, p := range s.field.predators {
 			s.field.tiles[p.y][p.x] = Tile{
-				image: resources.FoodImage,
+				image: resources.Images["plant"],
 				food:  100,
 			}
 			// Reward 500 to each alive gopher for each vegitization.
@@ -288,16 +288,16 @@ func (s *GameState) draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	screen.Fill(color.RGBA{0, 125, 156, 255})
 	// Draw our clock.
-	clockX := float64(winWidth)/2 - float64(resources.TimeImage.Bounds().Max.X)/2
-	clockY := float64(332 - 276 - resources.TimeImage.Bounds().Max.Y - 1)
-	op.GeoM.Translate(-float64(resources.TimeImage.Bounds().Max.X)/2, -float64(resources.TimeImage.Bounds().Max.Y)/2)
+	clockX := float64(winWidth)/2 - float64(resources.Images["time"].Bounds().Max.X)/2
+	clockY := float64(332 - 276 - resources.Images["time"].Bounds().Max.Y - 1)
+	op.GeoM.Translate(-float64(resources.Images["time"].Bounds().Max.X)/2, -float64(resources.Images["time"].Bounds().Max.Y)/2)
 	op.GeoM.Rotate(float64(s.turn) / 2000.0 * 6.28)
-	op.GeoM.Translate(float64(resources.TimeImage.Bounds().Max.X)/2, float64(resources.TimeImage.Bounds().Max.Y)/2)
+	op.GeoM.Translate(float64(resources.Images["time"].Bounds().Max.X)/2, float64(resources.Images["time"].Bounds().Max.Y)/2)
 	op.GeoM.Translate(clockX, clockY)
-	screen.DrawImage(resources.TimeImage, op)
+	screen.DrawImage(resources.Images["time"], op)
 	op.GeoM.Reset()
 	op.GeoM.Translate(clockX, clockY)
-	screen.DrawImage(resources.TimeBorderImage, op)
+	screen.DrawImage(resources.Images["time-border"], op)
 
 	op.GeoM.Reset()
 	screen.DrawImage(s.buttonAreaImage, op)
@@ -316,7 +316,7 @@ func (s *GameState) draw(screen *ebiten.Image) {
 		op.GeoM.Translate(clockX, clockY)
 		timeLeft := fmt.Sprintf("%d", int(s.mapExitTime.Sub(s.currentTurnTime).Seconds()))
 		r := text.BoundString(resources.BoldFont, timeLeft)
-		text.Draw(screen, timeLeft, resources.BoldFont, int(clockX+float64(resources.TimeImage.Bounds().Max.X/2)-float64(r.Max.X/2)), int(clockY+float64(resources.TimeImage.Bounds().Max.Y/2)+float64(r.Max.Y/2)), color.RGBA{255, 0, 255, 255})
+		text.Draw(screen, timeLeft, resources.BoldFont, int(clockX+float64(resources.Images["time"].Bounds().Max.X/2)-float64(r.Max.X/2)), int(clockY+float64(resources.Images["time"].Bounds().Max.Y/2)+float64(r.Max.Y/2)), color.RGBA{255, 0, 255, 255})
 	}
 
 	// Draw our scoreboard.
@@ -327,9 +327,9 @@ func (s *GameState) draw(screen *ebiten.Image) {
 			op.GeoM.Reset()
 			op.GeoM.Translate(offsetX+float64(l)*tileWidth, offsetY+float64(i)*tileHeight)
 			if l >= p.lives {
-				screen.DrawImage(resources.GopherRipImage, op)
+				screen.DrawImage(resources.Images["gopher-rip"], op)
 			} else {
-				screen.DrawImage(resources.GopherImage, op)
+				screen.DrawImage(resources.Images["gopher"], op)
 			}
 		}
 
