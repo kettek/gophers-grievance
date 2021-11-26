@@ -26,5 +26,6 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func (g *Game) setState(state State) {
+	state.init()
 	g.state = state
 }

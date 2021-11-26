@@ -9,6 +9,15 @@ import (
 
 type LoadState struct {
 	game *Game
+	ui   *UiManager
+}
+
+func (s *LoadState) init() error {
+	s.ui = &UiManager{
+		mouseState: make(map[int]bool),
+	}
+
+	return nil
 }
 
 func (s *LoadState) update(screen *ebiten.Image) error {
@@ -16,9 +25,14 @@ func (s *LoadState) update(screen *ebiten.Image) error {
 	if err := resources.Load(); err != nil {
 		panic(err)
 	}
-	s.game.setState(&MenuState{
+	gameState := &GameState{
 		game: s.game,
-	})
+		ui:   s.ui,
+	}
+	s.game.setState(gameState)
+	gameState.reset()
+	gameState.loadMap(resources.GetAnyMap())
+
 	return nil
 }
 

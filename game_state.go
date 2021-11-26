@@ -31,8 +31,63 @@ type GameState struct {
 	difficulty      int
 	currentMap      resources.Map
 	backgroundImage *ebiten.Image
+	buttonAreaImage *ebiten.Image
 	mapDone         bool
 	mapExitTime     time.Time
+	buttons         []Button
+	mouseState      map[int]bool
+	ui              *UiManager
+}
+
+func (s *GameState) init() error {
+	// Set our default settings.
+	s.turnTime = 50 * time.Millisecond
+	s.difficulty = 5
+	s.players = []Player{
+		{
+			dirs:  make(map[Direction]struct{}),
+			lives: maxLives,
+		},
+	}
+
+	// Setup UI.
+	backgroundImage, err := ebiten.NewImage(276, 276, ebiten.FilterLinear)
+	if err != nil {
+		return err
+	}
+	s.backgroundImage = backgroundImage
+
+	buttonAreaImage, err := ebiten.NewImage(276, resources.ButtonLeftImage.Bounds().Dy()+2, ebiten.FilterLinear)
+	if err != nil {
+		return err
+	}
+	s.buttonAreaImage = buttonAreaImage
+	s.buttonAreaImage.Fill(color.RGBA{
+		180, 180, 180, 255,
+	})
+
+	s.mouseState = make(map[int]bool)
+	s.buttons = []Button{
+		{
+			t: "Exit to Menu",
+			cb: func() bool {
+				s.game.setState(&MenuState{
+					game: s.game,
+					ui:   s.ui,
+				})
+				return true
+			},
+		},
+		{
+			t: "New Game",
+			cb: func() bool {
+				s.reset()
+				return false
+			},
+		},
+	}
+
+	return nil
 }
 
 func (s *GameState) loadMap(m resources.Map) {
@@ -76,6 +131,9 @@ func (s *GameState) reset() {
 }
 
 func (s *GameState) update(screen *ebiten.Image) error {
+	s.ui.checkButtons(s.buttons)
+
+	// Otherwise, let's simulate.
 	s.currentTurnTime = time.Now()
 	d := s.currentTurnTime.Sub(s.lastTurnTime)
 	for i := range s.players {
@@ -197,7 +255,7 @@ func (s *GameState) draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{0, 125, 156, 255})
 	// Draw our clock.
 	clockX := float64(winWidth)/2 - float64(resources.TimeImage.Bounds().Max.X)/2
-	clockY := float64(332 - 276 - resources.TimeImage.Bounds().Max.Y)
+	clockY := float64(332 - 276 - resources.TimeImage.Bounds().Max.Y - 1)
 	op.GeoM.Translate(-float64(resources.TimeImage.Bounds().Max.X)/2, -float64(resources.TimeImage.Bounds().Max.Y)/2)
 	op.GeoM.Rotate(float64(s.turn) / 2000.0 * 6.28)
 	op.GeoM.Translate(float64(resources.TimeImage.Bounds().Max.X)/2, float64(resources.TimeImage.Bounds().Max.Y)/2)
@@ -206,6 +264,17 @@ func (s *GameState) draw(screen *ebiten.Image) {
 	op.GeoM.Reset()
 	op.GeoM.Translate(clockX, clockY)
 	screen.DrawImage(resources.TimeBorderImage, op)
+
+	op.GeoM.Reset()
+	screen.DrawImage(s.buttonAreaImage, op)
+	btnX := 1
+	for i := range s.buttons {
+		btn := &s.buttons[i]
+		btn.draw(screen, btnX, 1)
+		btnX += btn.w + 2
+	}
+
+	topOffset := resources.ButtonMiddleImage.Bounds().Dy() + 2
 
 	// Draw our next map timer
 	if s.mapDone {
@@ -219,7 +288,7 @@ func (s *GameState) draw(screen *ebiten.Image) {
 	// Draw our scoreboard.
 	for i, p := range s.players {
 		var offsetX float64 = 0
-		var offsetY float64 = 1 + float64(i)*10
+		var offsetY float64 = float64(topOffset) + 1 + float64(i)*10
 		for l := 0; l < maxLives; l++ {
 			op.GeoM.Reset()
 			op.GeoM.Translate(offsetX+float64(l)*tileWidth, offsetY+float64(i)*tileHeight)
@@ -231,7 +300,7 @@ func (s *GameState) draw(screen *ebiten.Image) {
 		}
 
 		score := fmt.Sprintf("Gopher %d - %d", i, p.score)
-		text.Draw(screen, score, resources.BoldFont, int(float64(maxLives)*tileWidth), 10+i*10, color.White)
+		text.Draw(screen, score, resources.BoldFont, int(float64(maxLives)*tileWidth), topOffset+12+i*12, color.White)
 	}
 
 	var offsetX float64 = 0
