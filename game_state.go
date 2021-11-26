@@ -203,6 +203,9 @@ func (s *GameState) draw(screen *ebiten.Image) {
 	op.GeoM.Translate(float64(resources.TimeImage.Bounds().Max.X)/2, float64(resources.TimeImage.Bounds().Max.Y)/2)
 	op.GeoM.Translate(clockX, clockY)
 	screen.DrawImage(resources.TimeImage, op)
+	op.GeoM.Reset()
+	op.GeoM.Translate(clockX, clockY)
+	screen.DrawImage(resources.TimeBorderImage, op)
 
 	// Draw our next map timer
 	if s.mapDone {

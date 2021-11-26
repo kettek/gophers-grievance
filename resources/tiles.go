@@ -23,6 +23,7 @@ var (
 	SnakeSnoozeImage *ebiten.Image
 	FoodImage        *ebiten.Image
 	TimeImage        *ebiten.Image
+	TimeBorderImage  *ebiten.Image
 )
 
 func loadImages() error {
@@ -70,6 +71,10 @@ func loadImages() error {
 	data, _ = f.ReadFile("time.png")
 	img, _, _ = image.Decode(bytes.NewReader(data))
 	TimeImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
+
+	data, _ = f.ReadFile("time-border.png")
+	img, _, _ = image.Decode(bytes.NewReader(data))
+	TimeBorderImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterNearest)
 
 	return nil
 }
