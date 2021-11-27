@@ -83,6 +83,12 @@ func (f *Field) fromMap(m resources.Map, clearRip bool) {
 	for y, row := range m.Cells {
 		for x, r := range row {
 			switch r {
+			case '%':
+				f.tiles[y][x] = Tile{
+					image:    resources.Images["box"],
+					pushable: true,
+					blocking: true,
+				}
 			case 'B':
 				f.tiles[y][x] = Tile{
 					image:    resources.Images["boulder"],
