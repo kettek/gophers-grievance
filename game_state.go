@@ -210,7 +210,7 @@ func (s *GameState) simulate() {
 			if !p.trapped {
 				p.trapped = true
 				if p.t == snakeType {
-					p.image = resources.Images["snake"]
+					p.image = resources.Images["snake-snooze"]
 				}
 			}
 			trapCount++
