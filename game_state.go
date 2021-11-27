@@ -80,14 +80,14 @@ func (s *GameState) init() error {
 
 	s.mouseState = make(map[int]bool)
 	s.buttons = []ui.WidgetI{
-		ui.MakeButton("Exit to Menu", func() bool {
+		ui.MakeButton("Exit to Menu", func(w ui.WidgetI) bool {
 			s.game.setState(&MenuState{
 				game: s.game,
 				ui:   s.ui,
 			})
 			return true
 		}),
-		ui.MakeButton("New Game", func() bool {
+		ui.MakeButton("New Game", func(w ui.WidgetI) bool {
 			s.reset()
 			return false
 		}),

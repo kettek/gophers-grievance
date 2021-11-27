@@ -16,7 +16,7 @@ type Map struct {
 	Name          string
 	Background    color.RGBA
 	Columns, Rows int
-	Cells         []string
+	Cells         [][]rune
 }
 
 func loadMaps() error {
@@ -73,7 +73,7 @@ func loadMaps() error {
 					m.Columns = len(t)
 				}
 				m.Rows++
-				m.Cells = append(m.Cells, t)
+				m.Cells = append(m.Cells, []rune(t))
 			}
 		}
 		// Now read our runes.

@@ -13,7 +13,7 @@ type Button struct {
 	t string
 }
 
-func MakeButton(t string, cb func() bool) WidgetI {
+func MakeButton(t string, cb func(WidgetI) bool) WidgetI {
 	return &Button{
 		Widget: Widget{
 			cb: cb,

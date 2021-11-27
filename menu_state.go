@@ -18,7 +18,7 @@ type MenuState struct {
 func (s *MenuState) init() error {
 	// Set up UI
 	s.buttons = []ui.WidgetI{
-		ui.MakeButton("New Game", func() bool {
+		ui.MakeButton("New Game", func(w ui.WidgetI) bool {
 			gameState := &GameState{
 				game: s.game,
 				ui:   s.ui,
@@ -29,7 +29,7 @@ func (s *MenuState) init() error {
 
 			return true
 		}),
-		ui.MakeButton("Map Editor", func() bool {
+		ui.MakeButton("Map Editor", func(w ui.WidgetI) bool {
 			editorState := &EditorState{
 				game: s.game,
 				ui:   s.ui,
@@ -37,7 +37,7 @@ func (s *MenuState) init() error {
 			s.game.setState(editorState)
 			return true
 		}),
-		ui.MakeButton("Exit", func() bool {
+		ui.MakeButton("Exit", func(w ui.WidgetI) bool {
 			os.Exit(0)
 			return true
 		}),

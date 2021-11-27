@@ -29,6 +29,7 @@ var Images = map[string]*ebiten.Image{
 }
 
 var Runes = map[rune]string{
+	' ': "",
 	'%': "box",
 	'#': "solid",
 	'B': "boulder",
@@ -39,6 +40,20 @@ var Runes = map[rune]string{
 	'r': "gopher-rip",
 	's': "snake",
 	'p': "plant",
+}
+
+var TileRuneList = []rune{
+	' ',
+	'#',
+	'%',
+	'B',
+	'1',
+	'2',
+	'3',
+	'4',
+	'r',
+	's',
+	'p',
 }
 
 func loadDefaultImages() error {

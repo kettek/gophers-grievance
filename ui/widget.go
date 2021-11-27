@@ -1,6 +1,8 @@
 package ui
 
-import "github.com/hajimehoshi/ebiten"
+import (
+	"github.com/hajimehoshi/ebiten"
+)
 
 type WidgetI interface {
 	SetX(int)
@@ -11,8 +13,10 @@ type WidgetI interface {
 	Height() int
 	SetHeld(bool)
 	Held() bool
-	SetCb(func() bool)
+	SetCb(func(WidgetI) bool)
 	Cb() bool
+	SetId(string)
+	Id() string
 	//
 	Draw(screen *ebiten.Image, x, y int) (int, int)
 	Hit(x, y int) bool
@@ -22,7 +26,8 @@ type Widget struct {
 	x, y int
 	w, h int
 	held bool
-	cb   func() bool
+	id   string
+	cb   func(WidgetI) bool
 }
 
 func (w *Widget) SetX(x int) {
@@ -57,7 +62,7 @@ func (w *Widget) Held() bool {
 	return w.held
 }
 
-func (w *Widget) SetCb(cb func() bool) {
+func (w *Widget) SetCb(cb func(WidgetI) bool) {
 	w.cb = cb
 }
 
@@ -65,7 +70,19 @@ func (w *Widget) Cb() bool {
 	if w.cb == nil {
 		return false
 	}
-	return w.cb()
+	return w.cb(w)
+}
+
+func (w *Widget) Draw(screen *ebiten.Image, x, y int) (int, int) {
+	return 0, 0
+}
+
+func (w *Widget) Id() string {
+	return w.id
+}
+
+func (w *Widget) SetId(id string) {
+	w.id = id
 }
 
 func (w *Widget) Hit(x, y int) bool {
