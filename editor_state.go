@@ -10,6 +10,9 @@ import (
 	"github.com/kettek/gophers-grievance/ui"
 )
 
+var editorMap resources.Map
+var wasEditorOpen = false
+
 type EditorState struct {
 	game             *Game
 	buttons          []ui.WidgetI
@@ -28,6 +31,8 @@ func (s *EditorState) init() error {
 				game: s.game,
 				ui:   s.ui,
 			})
+			editorMap = s.currentMap
+			wasEditorOpen = true
 			return true
 		}),
 		ui.MakeButton("New", func(w ui.WidgetI) bool {
@@ -43,6 +48,8 @@ func (s *EditorState) init() error {
 			return false
 		}),
 		ui.MakeButton("Try", func(w ui.WidgetI) bool {
+			editorMap = s.currentMap
+			wasEditorOpen = true
 			gameState := &GameState{
 				game: s.game,
 				ui:   s.ui,
@@ -72,7 +79,11 @@ func (s *EditorState) init() error {
 	}
 
 	// Create base map.
-	s.resetMap()
+	if !wasEditorOpen {
+		s.resetMap()
+	} else {
+		s.currentMap = editorMap
+	}
 
 	return nil
 }

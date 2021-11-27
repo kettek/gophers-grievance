@@ -91,6 +91,15 @@ func (s *GameState) init() error {
 			s.reset()
 			return false
 		}),
+		ui.MakeButton("Edit Map", func(w ui.WidgetI) bool {
+			// This is kind of bad
+			editorMap = s.currentMap
+			s.game.setState(&EditorState{
+				game: s.game,
+				ui:   s.ui,
+			})
+			return true
+		}),
 	}
 
 	return nil
