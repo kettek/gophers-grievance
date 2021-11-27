@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"image/color"
@@ -9,14 +9,20 @@ import (
 )
 
 type Button struct {
-	t    string
-	x, y int
-	w, h int
-	held bool
-	cb   func() bool
+	Widget
+	t string
 }
 
-func (b *Button) draw(screen *ebiten.Image, x, y int) (int, int) {
+func MakeButton(t string, cb func() bool) WidgetI {
+	return &Button{
+		Widget: Widget{
+			cb: cb,
+		},
+		t: t,
+	}
+}
+
+func (b *Button) Draw(screen *ebiten.Image, x, y int) (int, int) {
 	b.x = x
 	b.y = y
 	op := &ebiten.DrawImageOptions{}
@@ -84,40 +90,4 @@ func (b *Button) draw(screen *ebiten.Image, x, y int) (int, int) {
 	b.w = w
 	b.h = h
 	return w, h
-}
-
-func (b *Button) hit(x, y int) bool {
-	return x >= b.x && x <= b.x+b.w && y >= b.y && y <= b.y+b.h
-}
-
-type UiManager struct {
-	mouseState map[int]bool
-	//buttons    []Button
-}
-
-func (ui *UiManager) checkButtons(buttons []Button) bool {
-	// Check for UI interactions.
-	if !ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) && ui.mouseState[int(ebiten.MouseButtonLeft)] {
-		x, y := ebiten.CursorPosition()
-		for i := range buttons {
-			btn := &buttons[i]
-			if btn.hit(x, y) && btn.held {
-				if btn.cb() {
-					return true
-				}
-			}
-			btn.held = false
-		}
-		ui.mouseState[int(ebiten.MouseButtonLeft)] = false
-	} else if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) && !ui.mouseState[int(ebiten.MouseButtonLeft)] {
-		ui.mouseState[int(ebiten.MouseButtonLeft)] = true
-		x, y := ebiten.CursorPosition()
-		for i := range buttons {
-			btn := &buttons[i]
-			if btn.hit(x, y) {
-				btn.held = true
-			}
-		}
-	}
-	return false
 }

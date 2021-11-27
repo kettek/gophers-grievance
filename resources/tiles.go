@@ -28,6 +28,19 @@ var Images = map[string]*ebiten.Image{
 	"time-border":  nil,
 }
 
+var Runes = map[rune]string{
+	'%': "box",
+	'#': "solid",
+	'B': "boulder",
+	'1': "gopher",
+	'2': "gopher",
+	'3': "gopher",
+	'4': "gopher",
+	'r': "gopher-rip",
+	's': "snake",
+	'p': "plant",
+}
+
 func loadDefaultImages() error {
 	for k := range Images {
 		data, err := f.ReadFile(fmt.Sprintf("tiles/%s.png", k))

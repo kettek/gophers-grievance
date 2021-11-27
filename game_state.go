@@ -9,6 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/text"
 	"github.com/kettek/gophers-grievance/resources"
+	"github.com/kettek/gophers-grievance/ui"
 )
 
 type Direction int
@@ -42,9 +43,9 @@ type GameState struct {
 	buttonAreaImage *ebiten.Image
 	mapDone         bool
 	mapExitTime     time.Time
-	buttons         []Button
+	buttons         []ui.WidgetI
 	mouseState      map[int]bool
-	ui              *UiManager
+	ui              *ui.Manager
 	floatingText    []FloatingText
 }
 
@@ -78,24 +79,18 @@ func (s *GameState) init() error {
 	})
 
 	s.mouseState = make(map[int]bool)
-	s.buttons = []Button{
-		{
-			t: "Exit to Menu",
-			cb: func() bool {
-				s.game.setState(&MenuState{
-					game: s.game,
-					ui:   s.ui,
-				})
-				return true
-			},
-		},
-		{
-			t: "New Game",
-			cb: func() bool {
-				s.reset()
-				return false
-			},
-		},
+	s.buttons = []ui.WidgetI{
+		ui.MakeButton("Exit to Menu", func() bool {
+			s.game.setState(&MenuState{
+				game: s.game,
+				ui:   s.ui,
+			})
+			return true
+		}),
+		ui.MakeButton("New Game", func() bool {
+			s.reset()
+			return false
+		}),
 	}
 
 	return nil
@@ -142,7 +137,7 @@ func (s *GameState) reset() {
 }
 
 func (s *GameState) update(screen *ebiten.Image) error {
-	s.ui.checkButtons(s.buttons)
+	s.ui.CheckWidgets(s.buttons)
 
 	// Otherwise, let's simulate.
 	s.currentTurnTime = time.Now()
@@ -302,10 +297,9 @@ func (s *GameState) draw(screen *ebiten.Image) {
 	op.GeoM.Reset()
 	screen.DrawImage(s.buttonAreaImage, op)
 	btnX := 1
-	for i := range s.buttons {
-		btn := &s.buttons[i]
-		btn.draw(screen, btnX, 1)
-		btnX += btn.w + 2
+	for _, btn := range s.buttons {
+		btn.Draw(screen, btnX, 1)
+		btnX += btn.Width() + 2
 	}
 
 	topOffset := resources.ButtonMiddleImage.Bounds().Dy() + 2

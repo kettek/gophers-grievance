@@ -5,17 +5,16 @@ import (
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/kettek/gophers-grievance/resources"
+	"github.com/kettek/gophers-grievance/ui"
 )
 
 type LoadState struct {
 	game *Game
-	ui   *UiManager
+	ui   *ui.Manager
 }
 
 func (s *LoadState) init() error {
-	s.ui = &UiManager{
-		mouseState: make(map[int]bool),
-	}
+	s.ui = ui.MakeManager()
 
 	return nil
 }
