@@ -31,13 +31,26 @@ func (s *EditorState) init() error {
 			return true
 		}),
 		ui.MakeButton("New", func(w ui.WidgetI) bool {
-			return false
+			s.resetMap()
+			return true
 		}),
 		ui.MakeButton("Save", func(w ui.WidgetI) bool {
+			// TODO: Show a popup with a scrollable file list of the "maps" resources directory, a file name input box, a cancel button, and a save button.
 			return false
 		}),
 		ui.MakeButton("Load", func(w ui.WidgetI) bool {
+			// TODO: Show the same as "Save", but with a load button instead.
 			return false
+		}),
+		ui.MakeButton("Try", func(w ui.WidgetI) bool {
+			gameState := &GameState{
+				game: s.game,
+				ui:   s.ui,
+			}
+			s.game.setState(gameState)
+			gameState.reset()
+			gameState.loadMap(s.currentMap)
+			return true
 		}),
 	}
 
@@ -59,6 +72,12 @@ func (s *EditorState) init() error {
 	}
 
 	// Create base map.
+	s.resetMap()
+
+	return nil
+}
+
+func (s *EditorState) resetMap() {
 	s.currentMap = resources.Map{
 		Name:       "Gopher's Paradise",
 		Background: color.RGBA{0, 125, 156, 255},
@@ -75,8 +94,6 @@ func (s *EditorState) init() error {
 			s.currentMap.Cells[i][s.currentMap.Columns-1] = '#'
 		}
 	}
-
-	return nil
 }
 
 func (s *EditorState) update(screen *ebiten.Image) error {
