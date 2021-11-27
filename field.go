@@ -258,6 +258,9 @@ func (f *Field) inBounds(x, y int) bool {
 }
 
 func (f *Field) isEmpty(x, y int) bool {
+	if !f.inBounds(y, x) {
+		return false
+	}
 	for _, p := range f.predators {
 		if p.x == x && p.y == y {
 			return false
@@ -275,10 +278,17 @@ func (f *Field) isEmpty(x, y int) bool {
 }
 
 func (f *Field) isBlocked(x, y int) bool {
+	if !f.inBounds(y, x) {
+		return false
+	}
+
 	return f.tiles[y][x].blocking
 }
 
 func (f *Field) isPushable(x, y int) bool {
+	if !f.inBounds(y, x) {
+		return false
+	}
 	return f.tiles[y][x].pushable
 }
 
